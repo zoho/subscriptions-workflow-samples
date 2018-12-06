@@ -1,0 +1,115 @@
+
+/*
+	Entity - subscription
+	
+	Triggers - Subscription Cancelled. 
+	
+	Work flow - When subscription Cancelled with in the specified days, then amount will be refunded.
+	
+	Change this {{daysToConsider}} variable as per your need.
+	
+	Place your {{authtoken}} in authtoken variable.
+	
+	* This custom function refunds the payment done for a subscription, if it is cancelled within 30 days. 
+	* When a subscription is cancelled, the last sent invoice details are retrieved.
+	* If the invoice is paid, the amount is refunded (in case of online payment) or a credit note is raised (in case of offline payment).
+	* If the invoice is unpaid, it is marked as void.
+	
+*/
+
+
+dayToConsider = 30;										// Change the daysToConsider value according to your need.
+createdDate   = subscriptions.get("activated_at");
+cancelledDate = subscriptions.get("cancelled_at");
+totalDays 	  = days360(createdDate,cancelledDate);
+
+if(totalDays > dayToConsider)
+{
+	//If the subscription is active for more than (daysToConsider) 30 days, we simnply exit the function.
+	return;
+}
+domain = "https://subscriptions.zoho.com";
+organizationID = organization.get("organization_id");
+authtoken = "";											//	Paste your authtoken between the quotes.
+invoiceID = subscriptions.get("child_invoice_id");
+if(invoiceID.isEmpty())
+{
+	return;
+}
+url = domain + "/api/v1/invoices/" + invoiceID + "?organization_id=" + organizationID + "&authtoken=" + authtoken;
+request = "retriving invoice";
+response = getUrl(url);
+// Retrieving the details of the last paid invoice.
+if(response.get("code") != 0)
+{
+	errorMessage = response.get("message");
+	sendmail
+	[
+		from :zoho.adminuserid
+		to :zoho.adminuserid
+		subject :"Error occured in Auto Cancellation custom function while " + request
+		message :"<b>Affected url :</b><br>" + url + "<br><b>Error Message</b><br>" + errorMessage
+	]
+	return;
+}
+invoiceMap = response.get("invoice");
+invoiceStatus = invoiceMap.get("status");
+paramsMap = Map();
+// Handling the use case for paid invoice.
+if(invoiceStatus == "paid")
+{
+	payments = invoiceMap.get("payments").get(0);
+	paidAmount = payments.get("amount");
+	isOnlinePayment = payments.get("gateway_transaction_id");
+	if(isOnlinePayment == "")
+	{
+		// For offline payment, we create a credit note for the customer.
+		customerID = invoiceMap.get("customer_id");
+		invoiceItems = invoiceMap.get("invoice_items").get(0);
+		planCode = invoiceItems.get("code");
+		creditNoteDate = zoho.currentdate.toString("yyyy-MM-dd");
+		creditNoteItemList = list();
+		creditNoteItem = Map();
+		creditNoteItem.put("code",planCode);
+		creditNoteItem.put("quantity","1");
+		creditNoteItem.put("price",paidAmount);
+		creditNoteItemList.add(creditNoteItem);
+		paramsMap.put("customer_id",customerID);
+		paramsMap.put("date",creditNoteDate);
+		paramsMap.put("creditnote_items",creditNoteItemList);
+		url = domain + "/api/v1/creditnotes?organization_id=" + organizationID + "&authtoken=" + authtoken;
+		request = "creating Credit Note";
+		response = postUrl(url,paramsMap.tostring());
+	}
+	else
+	{
+		// For online payment, we intiate a refund for the paid amount.
+		paymentID = payments.get("payment_id");
+		refundDescription = "Subscription is cancelled and amount is auto-refunded";
+		paramsMap.put("amount",paidAmount);
+		paramsMap.put("description",refundDescription);
+		url = domain + "/api/v1/payments/" + paymentID + "/refunds?organization_id=" + organizationID + "&authtoken=" + authtoken;
+		request = "refunding payment";
+		response = postUrl(url,paramsMap.tostring());
+	}
+}
+// Handling the use case for unpaid invoice, by simply voiding it.
+else if(invoiceStatus == "sent" || invoiceID == "overdue")
+{
+	paramsMap.put("reason","subscription cancelled");
+	url = domain + "/api/v1/invoices/" + invoiceID + "/void?organization_id=" + organizationID + "&authtoken=" + authtoken;
+	request = "voiding invoice";
+	response = postUrl(url,paramsMap.tostring());
+}
+// If error occurs in any of the API requests, an email will be sent to the admin user with the request URL and it's error.
+if(response.get("code") != 0)
+{
+	errorMessage = response.get("message");
+	sendmail
+	[
+		from :zoho.adminuserid
+		to :zoho.adminuserid
+		subject :"Error occured in Auto Cancellation custom function while " + request
+		message :"<b>Affected url :</b><br>" + url + "<br><b>Error Message</b><br>" + errorMessage
+	]
+}
