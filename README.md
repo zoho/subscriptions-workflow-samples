@@ -12,4 +12,4 @@ Every business is unique and each of them follows a specific workflow. While man
 - Save the Custom function and you are good to go.
 
 ## Custom Functions
-1. [*30 days money back guarantee*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/30_days_money_back.ds)
+1. [*30 days money back guarantee*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/30_days_money_back_guarantee.ds)
