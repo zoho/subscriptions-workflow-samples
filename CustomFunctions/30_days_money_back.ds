@@ -17,8 +17,8 @@
 	
 */
 
-
-dayToConsider = 30;										// Change the daysToConsider value according to your need.
+// Change the daysToConsider value according to your need.
+dayToConsider = 30;		
 createdDate   = subscriptions.get("activated_at");
 cancelledDate = subscriptions.get("cancelled_at");
 totalDays 	  = days360(createdDate,cancelledDate);
@@ -28,9 +28,12 @@ if(totalDays > dayToConsider)
 	//If the subscription is active for more than (daysToConsider) 30 days, we simnply exit the function.
 	return;
 }
-domain = "https://subscriptions.zoho.com";
+domain 	       = "https://subscriptions.zoho.com";
 organizationID = organization.get("organization_id");
-authtoken = "";											//	Paste your authtoken between the quotes.
+
+//	Paste your authtoken between the quotes.
+authtoken = "";
+
 invoiceID = subscriptions.get("child_invoice_id");
 if(invoiceID.isEmpty())
 {
@@ -101,6 +104,7 @@ else if(invoiceStatus == "sent" || invoiceID == "overdue")
 	request = "voiding invoice";
 	response = postUrl(url,paramsMap.tostring());
 }
+
 // If error occurs in any of the API requests, an email will be sent to the admin user with the request URL and it's error.
 if(response.get("code") != 0)
 {
