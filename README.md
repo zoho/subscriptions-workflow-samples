@@ -13,3 +13,4 @@ Every business is unique and each of them follows a specific workflow. While man
 
 ## Custom Functions
 1. [*30 days money back guarantee*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/30_days_money_back_guarantee.ds)
+2. [*Cancellation of Offline Subscriptions based on the Expected Payment Date*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/cancel_offline_subscription_after_expected_payment_date.ds)
