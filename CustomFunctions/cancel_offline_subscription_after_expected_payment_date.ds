@@ -1,0 +1,55 @@
+/*
+ 
+  This is a sample Custom Function written to be used in Workflow automation of Zoho Subscriptions, 
+  a recurring billing and subscriptions management software.
+  
+
+	Module   - Invoice
+	
+	Triggers - Subscription Cancelled. 
+	
+	Work flow - Date Based workflow
+  
+  Date of Execution - 1 day(s) after Expected Payment Date
+  
+  Advanced Filter   - When Status isn't paid.
+	
+	Place your {{authtoken}} in authtoken variable.
+	
+  
+	* This custom function cancels the offline subscriptions, if the renewed invoice is not paid 
+    even after the expected payment date.
+	* Execute the custom function on unpaid invoices.
+  * Retrieve the associated subscription with the invoice and cancel it immediately.
+	
+*/
+
+organizationID   = organization.get("organization_id");
+subscriptionList = invoice.get("subscriptions").toJSONList();
+
+// Place your authtoken within the double quotes.
+authtoken        = "";
+
+params = Map();
+params.put("cancel_at_end",false);
+params.put("reason","Payment not made even after the expected payment date");
+
+for each  subscription in subscriptionList
+{
+
+  // Get the subscription associated with the invoice and cancel it immediately.
+  
+ 	subscriptionID = subscription.get("subscription_id");
+	response = postUrl("https://subscriptions.zoho.com/api/v1/subscriptions/" + subscriptionID + "/cancel?organization_id=" + organizationID + "&authtoken=" + authtoken, params.tostring());
+	if(response.get("code") != 0)
+	{
+		errorMessage = response.get("message");
+		sendmail
+		[
+			from :zoho.adminuserid
+			to :zoho.adminuserid
+			subject :"Error in Custom Function Workflow"
+			message :"Error in cancelling subscription <br>Error Message:" + errorMessage
+		]
+	}
+}
