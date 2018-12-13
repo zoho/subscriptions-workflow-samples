@@ -4,22 +4,22 @@
   a recurring billing and subscriptions management software.
   
 
-	Module   - Invoice
+  Module   - Invoice
 	
-	Triggers - Subscription Cancelled. 
+  Triggers - Subscription Cancelled. 
 	
-	Work flow - Date Based workflow
+  Work flow - Date Based workflow
   
   Date of Execution - 1 day(s) after Expected Payment Date
   
   Advanced Filter   - When Status isn't paid.
 	
-	Place your {{authtoken}} in authtoken variable.
+  Place your {{authtoken}} in authtoken variable.
 	
   
-	* This custom function cancels the offline subscriptions, if the renewed invoice is not paid 
+  * This custom function cancels the offline subscriptions, if the renewed invoice is not paid 
     even after the expected payment date.
-	* Execute the custom function on unpaid invoices.
+  * Execute the custom function on unpaid invoices.
   * Retrieve the associated subscription with the invoice and cancel it immediately.
 	
 */
@@ -37,7 +37,7 @@ params.put("reason","Payment not made even after the expected payment date");
 for each  subscription in subscriptionList
 {
 
-  // Get the subscription associated with the invoice and cancel it immediately.
+       // Get the subscription associated with the invoice and cancel it immediately.
   
  	subscriptionID = subscription.get("subscription_id");
 	response = postUrl("https://subscriptions.zoho.com/api/v1/subscriptions/" + subscriptionID + "/cancel?organization_id=" + organizationID + "&authtoken=" + authtoken, params.tostring());
