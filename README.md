@@ -14,3 +14,6 @@ Every business is unique and each of them follows a specific workflow. While man
 ## Custom Functions
 1. [*30 days money back guarantee*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/30_days_money_back_guarantee.ds)
 2. [*Cancellation of Offline Subscriptions based on the Expected Payment Date*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/cancel_offline_subscription_after_expected_payment_date.ds)
+3. [*SMS Reminders using Twilio*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/sms_for_subscription_business_using_twilio.ds)
+4. [*SMS Reminders using SMS Magic*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/sms_for_subscription_business_using_smsmagic.ds)
+5. [*SMS Reminders using TextLocal*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/sms_for_subscription_business_using_textlocal.ds)
