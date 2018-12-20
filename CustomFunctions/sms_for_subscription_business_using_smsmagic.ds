@@ -1,0 +1,60 @@
+
+/*
+   This is a sample Custom Function written to be used in Workflow automation of Zoho Subscriptions, 
+   a recurring billing and subscriptions management software.
+   
+	 Entity - Subscription
+
+ 	 Triggers  - Subscription Cancelled. 
+	 
+	 Work flow - When subscription is cancelled, SMS is sent to the customer.
+ 
+ 	 Change your country code in {{defaultCountryCode}} variable.
+   
+*/
+
+// -- Provide your default country code. For example, '+91' for India.
+defaultCountryCode = "";
+
+mobileNo = subscriptions.get("contactpersons").get("0").get("mobile");
+length   = len(mobileNo);
+
+// If mobile number is not present for the customer (or) if an invalid number is found, 
+
+if(mobileNo == "" || length < 10)
+{
+	customerName = subscriptions.get("customer").get("display_name");
+	sendmail
+	[
+		from :zoho.adminuserid
+		to :zoho.adminuserid
+		subject :"Invalid Mobile Number Found"
+		message :"No mobile number (or) invalid mobile number found for the Customer " + customerName
+	]
+	return;
+}
+
+
+if(length == 10)
+{
+	mobileNo = defaultCountryCode + mobileNo;
+}
+
+planName    = subscriptions.get("name");
+textmessage = "Subscription has been cancelled for the Plan - " + planName;
+
+// Paste your API Key here.
+apiKey = "";
+
+// Sender's ID is numeric or alphanumeric string provided by SMS Magic.
+senderID = "";
+
+headermap = Map();
+headermap.put("apiKey",apiKey);
+
+infomap = Map();
+infomap.put("mobile_number", mobileNo);
+infomap.put("sms_text", textmessage);
+infomap.put("sender_id", senderID);
+
+resp = postUrl("https://api.sms-magic.com/v1/sms/send", infomap, headermap);
