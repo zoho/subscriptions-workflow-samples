@@ -1,0 +1,62 @@
+
+/*
+   This is a sample Custom Function written to be used in Workflow automation of Zoho Subscriptions, 
+   a recurring billing and subscriptions management software.
+   
+	 Entity - Subscription
+
+ 	 Triggers  - Subscription Cancelled. 
+	 
+	 Work flow - When subscription is cancelled, SMS is sent to the customer.
+ 
+ 	 Change your country code in {{defaultCountryCode}} variable.
+   
+*/
+
+// -- Provide your default country code. For example, '+91' for India.
+defaultCountryCode = "";
+
+mobileNo = subscriptions.get("contactpersons").get("0").get("mobile");
+length   = len(mobileNo);
+
+// If mobile number is not present for the customer (or) if an invalid number is found, an email is sent to admin.
+
+if(mobileNo == "" || length < 10)
+{
+	customerName = subscriptions.get("customer").get("display_name");
+	sendmail
+	[
+		from :zoho.adminuserid
+		to :zoho.adminuserid
+		subject :"Invalid Mobile Number Found"
+		message :"No mobile number (or) invalid mobile number found for the Customer " + customerName
+	]
+	return;
+}
+
+
+if(length == 10)
+{
+	mobileNo = defaultCountryCode + mobileNo;
+}
+
+planName    = subscriptions.get("name");
+textmessage = "Subscription has been cancelled for the Plan - " + planName;
+
+// -- Paste the twilio Mobile number, Account SID and Auth Token from Twilio's console.
+twilioMobileNo  = "";
+twilioAccSId    = "";
+twilioAuthtoken = "";
+
+baseEncoded = zoho.encryption.base64Encode(twilioAccSId + ":" + twilioAuthtoken);
+encode = baseEncoded.removeFirstOccurence("\n");
+
+headermap = Map();
+headermap.put("Authorization","Basic " + encode);
+
+infomap = Map();
+infomap.put("To", mobileNo);
+infomap.put("From", twilioMobileNo);
+infomap.put("Body", textmessage);
+
+respp = postUrl("https://api.twilio.com/2010-04-01/Accounts/" + twilioAccSId + "/Messages.json",infomap,headermap);
