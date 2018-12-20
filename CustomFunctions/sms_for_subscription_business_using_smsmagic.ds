@@ -19,7 +19,7 @@ defaultCountryCode = "";
 mobileNo = subscriptions.get("contactpersons").get("0").get("mobile");
 length   = len(mobileNo);
 
-// If mobile number is not present for the customer (or) if an invalid number is found, 
+// If mobile number is not present for the customer (or) if an invalid number is found, an email is sent to admin.
 
 if(mobileNo == "" || length < 10)
 {
