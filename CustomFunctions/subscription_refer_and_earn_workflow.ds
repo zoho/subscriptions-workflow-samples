@@ -28,7 +28,7 @@ domain         = "https://subscriptions.zoho.com";
 customer               = subscriptions.get("customer");
 customerCustomerFields = customer.get("custom_fields");
 
-// --Paste the label of your Custom Field shown in Hosted Page.
+// -- Paste the label of your Custom Field shown in Hosted Page.
 customFieldLabel 		     = "";
 
 referredCustomerName     = customer.get("display_name");
@@ -58,10 +58,10 @@ if(referrerEmail != null && !isBlank(referrerEmail))
 			customer   = customers.get(0);
 			customerID = customer.get("customer_id");
 
-      // Fill the incentive which you would like to award, say "10.00"
+      			// -- Fill the incentive which you would like to award, say "10.00"
 			referrerBonus = "";
       
-      // Paste the Account ID, to which this transaction is to be mapped, say Discount Account ID.
+      			// -- Paste the Account ID, to which this transaction is to be mapped, say Discount Account ID.
 			accountID     = "";
       
 			description   = "This is a incentive for referring the customer " + referredCustomerName;
