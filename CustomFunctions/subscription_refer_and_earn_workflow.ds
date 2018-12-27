@@ -1,0 +1,121 @@
+
+/*
+ 
+  This is a sample Custom Function written to be used in Workflow automation of Zoho Subscriptions, 
+  a recurring billing and subscriptions management software.
+  
+
+  Module   - Subscription
+	
+  Predefined Event - New Subscription.
+	
+  Place your {{authtoken}} in authtoken variable.
+
+  
+  * This custom function raises a credit note for the referrer with a fixed incentive amount.
+  * Search the customer with the email address provided by the referred customer.
+  * Raise a credit note for the searched customer.
+	
+*/
+
+organizationID = organization.get("organization_id");
+
+// -- Paste your authtoken here.
+authtoken      = "";
+
+domain         = "https://subscriptions.zoho.com";
+
+customer               = subscriptions.get("customer");
+customerCustomerFields = customer.get("custom_fields");
+
+// --Paste the label of your Custom Field shown in Hosted Page.
+customFieldLabel 		     = "";
+
+referredCustomerName     = customer.get("display_name");
+
+for each  customField in customerCustomerFields
+{
+	if(customField.get("label") == customFieldLabel)
+	{
+		referrerEmail = customField.get("value");
+		break;
+	}
+}
+
+if(referrerEmail != null && !isBlank(referrerEmail))
+{
+	params  = "&response_option=0" + "&email_contains=" + referrerEmail + "&organization_id=" + organizationID + "&authtoken=" + authtoken;
+	request = "Searching referrer Customer";
+	response = getUrl(domain + "/api/v1/customers?page=1&per_page=10" + params);
+
+	if(response.get("code") == 0)
+	{
+		customers = response.get("customers");
+		paramsMap = Map();
+
+		if(customers.size() > 0)
+		{
+			customer   = customers.get(0);
+			customerID = customer.get("customer_id");
+
+      // Fill the incentive which you would like to award, say "10.00"
+			referrerBonus = "";
+      
+      // Paste the Account ID, to which this transaction is to be mapped, say Discount Account ID.
+			accountID     = "";
+      
+			description   = "This is a incentive for referring the customer " + referredCustomerName;
+
+			creditNoteDate = zoho.currentdate.toString("yyyy-MM-dd");
+			creditNoteItemList = list();
+
+			creditNoteItem = Map();
+			creditNoteItem.put("quantity","1");
+			creditNoteItem.put("price",referrerBonus);
+			creditNoteItem.put("description",description);
+			creditNoteItem.put("account_id",accountID);
+			creditNoteItemList.add(creditNoteItem);
+
+			paramsMap.put("customer_id",customerID);
+			paramsMap.put("date",creditNoteDate);
+			paramsMap.put("creditnote_items",creditNoteItemList);
+      
+			url = domain + "/api/v1/creditnotes?organization_id=" + organizationID + "&authtoken=" + authtoken;
+			request = "Creating Credit Note";
+			response = postUrl(url,paramsMap.tostring());
+      
+			if(response.get("code") != 0)
+			{
+				errorMessage = response.get("message");
+				sendmail
+				[
+					from :zoho.adminuserid
+					to :zoho.adminuserid
+					subject :"Error occured in Referrer custom function while " + request
+					message :"<b>Affected url :</b><br>" + url + "<br><b>Error Message</b><br>" + errorMessage
+				]
+			}
+		}
+		else
+		{
+			sendmail
+			[
+				from :zoho.adminuserid
+				to :zoho.adminuserid
+				subject :"Error occured in Referrer custom function."
+				message :"Referreral Customer with Email ID " + referrerEmail + " is not found."
+			]
+		}
+	}
+	else
+	{
+		errorMessage = response.get("message");
+		sendmail
+		[
+			from :zoho.adminuserid
+			to :zoho.adminuserid
+			subject :"Error occured in Referrer custom function while " + request
+			message :"<b>Affected url :</b><br>" + url + "<br><b>Error Message</b><br>" + errorMessage
+		]
+	}
+}
