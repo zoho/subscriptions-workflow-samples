@@ -17,3 +17,4 @@ Every business is unique and each of them follows a specific workflow. While man
 3. [*SMS Reminders using Twilio*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/sms_for_subscription_business_using_twilio.ds)
 4. [*SMS Reminders using SMS Magic*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/sms_for_subscription_business_using_smsmagic.ds)
 5. [*SMS Reminders using TextLocal*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/sms_for_subscription_business_using_textlocal.ds)
+6. [*Refer and Earn Workflow*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/subscription_refer_and_earn_workflow.ds)
