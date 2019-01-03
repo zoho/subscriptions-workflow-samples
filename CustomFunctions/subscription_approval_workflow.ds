@@ -1,0 +1,124 @@
+/*
+ 
+  This is a sample Custom Function written to be used in Workflow automation of Zoho Subscriptions, 
+  a recurring billing and subscriptions management software.
+  
+
+  Module   - Subscription
+	
+  Type     - Custom Button
+	
+  Prequisites:
+  
+  1) Place your {{authtoken}} in authtoken variable.
+  2) Create a dropdown custom field for Invoices. Provide the label as 'Approval Status' and two dropdown values as
+     'Pending Approval' and 'Approved'.
+  3) Configure a custom button for Subscriptions module and paste the code below.
+	
+  
+  * This custom function updates the approval status custom field.
+  * It also postpones the billing date for the second billing cycle.
+  * It is useful for box type subscription businesses.
+  
+	
+*/
+
+// -- Place your authtoken here.
+authtoken = "";
+domain   = "https://subscriptions.zoho.com";
+
+customer     = subscriptions.get("customer");
+emailAddress = customer.get("email");
+c_fields     = subscriptions.get("custom_fields").toJSONList();
+
+nc_fields = List();
+code    = 0;
+message = "";
+
+// Boolean value to check if the requirement custom field is configured for the subscription.
+isCFPresent = false;
+
+if(c_fields.size() != 0)
+{
+	for each  c_field in c_fields
+	{
+		if(c_field.containValue("Approval Status"))
+		{
+			isCFPresent = true;
+			value       = c_field.get("value");
+      
+			if(value = "Approved")
+			{
+				message = "Already Approved";
+				code = 1;
+			}
+			else
+			{
+				c_field.remove("value");
+				c_field.put("value", "Provisioned");
+				c_field.remove("value_formatted");
+				c_field.put("value_formatted", "Provisioned");
+				code = 0;
+			}
+		}
+		nc_fields.add(c_field);
+	}
+}
+
+if(!isCFPresent)
+{
+	code   = 1;
+	message = "Approval Status not set!";
+}
+
+if(code = 0)
+{
+	newCFList = list();
+
+  // -- Update the custom fields list after the required changes.
+	for each  nc_field in nc_fields
+	{
+		cf = Map();
+		cf.put("customfield_id",nc_field.get("customfield_id"));
+		cf.put("value",nc_field.get("value"));
+		newCFList.add(cf);
+	}
+
+	cmap = Map();
+	cmap.put("custom_fields",newCFList);
+	response = zoho.subscriptions.update("Subscriptions", organization.get("organization_id"), subscriptions.get("subscription_id"), cmap);
+
+	code    = response.get("code");
+	message = response.get("message");
+
+	if(code == 0)
+	{
+		currentDate      = zoho.currentdate.toString("yyyy-MM-dd");
+		nextBillingDate  = addDay(currentDate, 30);
+    
+		paramsMap = Map();
+		paramsMap.put("renewal_at", nextBillingDate.toString("yyyy-MM-dd"));
+    
+    // -- Update the billing date for next cycle.
+		url = domain + "/api/v1/subscriptions/" + subscriptions.get("subscription_id") + "/postpone?organization_id=" + organization.get("organization_id") + "&authtoken=" + authtoken;
+		response = postUrl(url,paramsMap.tostring());
+    
+		code    = response.get("code");
+		message = response.get("message");
+    
+		if(code == 0)
+		{
+			sendmail
+			[
+				from :zoho.adminuserid
+				to :emailAddress
+				subject :"Subscription Approved"
+				message :"Your subscription has been approved and your first shipment is on its way. Thank you for the business."
+			]
+		}
+	}
+}
+resultMap = Map();
+resultMap.put("message",message);
+resultMap.put("code",code);
+return resultMap;
