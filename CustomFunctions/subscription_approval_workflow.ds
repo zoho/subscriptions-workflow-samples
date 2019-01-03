@@ -75,7 +75,7 @@ if(code = 0)
 {
 	newCFList = list();
 
-  // -- Update the custom fields list after the required changes.
+        // -- Update the custom fields list after the required changes.
 	for each  nc_field in nc_fields
 	{
 		cf = Map();
@@ -99,7 +99,7 @@ if(code = 0)
 		paramsMap = Map();
 		paramsMap.put("renewal_at", nextBillingDate.toString("yyyy-MM-dd"));
     
-    // -- Update the billing date for next cycle.
+                // -- Update the billing date for next cycle.
 		url = domain + "/api/v1/subscriptions/" + subscriptions.get("subscription_id") + "/postpone?organization_id=" + organization.get("organization_id") + "&authtoken=" + authtoken;
 		response = postUrl(url,paramsMap.tostring());
     
