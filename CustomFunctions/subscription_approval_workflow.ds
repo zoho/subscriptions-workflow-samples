@@ -55,9 +55,9 @@ if(c_fields.size() != 0)
 			else
 			{
 				c_field.remove("value");
-				c_field.put("value", "Provisioned");
+				c_field.put("value", "Approved");
 				c_field.remove("value_formatted");
-				c_field.put("value_formatted", "Provisioned");
+				c_field.put("value_formatted", "Approved");
 				code = 0;
 			}
 		}
