@@ -12,7 +12,7 @@
   
   1) Place your {{authtoken}} in authtoken variable.
   2) Create a dropdown custom field for Invoices. Provide the label as 'Approval Status' and two dropdown values as
-     'Pending Approval' and 'Approved'.
+     'Awaiting Approval' and 'Approved'.
   3) Configure a custom button for Subscriptions module and paste the code below.
 	
   
@@ -108,6 +108,7 @@ if(code = 0)
     
 		if(code == 0)
 		{
+			// -- Sending a confirmation Email to the customer. Change the message as per your wish.
 			sendmail
 			[
 				from :zoho.adminuserid
