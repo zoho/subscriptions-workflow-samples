@@ -1,18 +1,18 @@
 <?php
 
 // Retrieve the data from the redirected form.
-$skinMetaData  		   = $_POST['skintone'];
-$eyeMetaData 		     = $_POST['eyecolor'];
+$skinMetaData  		 = $_POST['skintone'];
+$eyeMetaData 		 = $_POST['eyecolor'];
 $fragranceMetaData 	 = $_POST['fragrance'];
 $specialRequirement  = $_POST['specialrequirements'];
 $skinConcern  	     = $_POST['skinconcern'];
 
-$eyeJson			     = json_decode($eyeMetaData, true);
-$skinJson			     = json_decode($skinMetaData, true);
+$eyeJson			 = json_decode($eyeMetaData, true);
+$skinJson			 = json_decode($skinMetaData, true);
 $fragranceJson		 = json_decode($fragranceMetaData, true);
 
-$eye 				     = $eyeJson['widget_metadata']['value'][0]['name'];
-$skin 				   = $skinJson['widget_metadata']['value'][0]['name'];
+$eye 				 = $eyeJson['widget_metadata']['value'][0]['name'];
+$skin 				 = $skinJson['widget_metadata']['value'][0]['name'];
 $fragrance 			 = $fragranceJson['widget_metadata']['value'][0]['name'];
 
 // Paste your orgid, authtoken and plan code here.
