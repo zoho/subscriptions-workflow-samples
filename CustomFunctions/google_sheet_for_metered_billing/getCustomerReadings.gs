@@ -6,10 +6,10 @@
 function doGet(e) 
 {
   // Provide the spreadhsheet URL between the quotes.
-  var ss    = SpreadsheetApp.openByUrl("");
+  var spreadsheet    = SpreadsheetApp.openByUrl("");
 
   // Provide the name of the current working sheet.
-  var sheet = ss.getSheetByName("");
+  var sheet = spreadsheet.getSheetByName("");
   
   return getCustomerDetails(sheet, e.parameter.id); 
 }
