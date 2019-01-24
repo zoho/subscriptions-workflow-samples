@@ -1,0 +1,96 @@
+
+/*
+	Entity - Invoice
+	
+	Triggers - Invoice Created. 
+	
+	Work flow - When a pending invoice is created, the readings value will be fetched from google script and the
+				invoice will be updated accordingly.
+	
+	Place your {{authtoken}} in authtoken variable.
+	
+	* This custom function refunds the payment done for a subscription, if it is cancelled within 30 days. 
+	* When a subscription is cancelled, the last sent invoice details are retrieved.
+	* If the invoice is paid, the amount is refunded (in case of online payment) or a credit note is raised (in case of offline payment).
+	* If the invoice is unpaid, it is marked as void.
+	
+*/
+
+
+invoiceStatus = invoice.get("status");
+
+// Execute the function only for pending invoices.
+if(invoiceStatus.equalsIgnoreCase("pending"))
+{
+
+	// -- Place your authtoken between the quotes.
+	authtoken 	 = "";
+
+	// -- Place the Google App Script urls copied from the Google App Script console.
+	customerReadingsScriptUrl     = "";
+	updateCustomerStatusScriptUrl = "";
+
+	orgID 		 = organization.get("organization_id");
+	invID 		 = invoice.get("invoice_id");
+	custID 		 = invoice.get("customer_id");
+	customerName = invoice.get("customer_name");
+
+	resp = getUrl(customerReadingsScriptUrl + "?id=" + custID);
+
+	if(resp.get("code") == 0)
+	{
+		lastMonthReading    = resp.get("last_month_reading");
+		currentMonthReading = resp.get("closing_reading");
+		totalReading = currentMonthReading - lastMonthReading;
+
+		/* In this example, invoice will be updated if the reading values exceed 100 units.
+		   Modify it for your needs.
+		*/
+
+		if(totalReading > 100)
+		{
+			invoiceItems = invoice.get("invoice_items").toJSONList();
+			rate 		 = totalReading - 100;
+
+			invoiceItem = Map();
+			invoiceItem.put("quantity","1");
+			invoiceItem.put("price",rate);
+			invoiceItem.put("description","Charges based on metered billing usage.");
+			invoiceItems.add(invoiceItem);
+
+			paramsMap = Map();
+			paramsMap.put("invoice_items",invoiceItems);
+			paramsMap.put("reason","Invoice line items updated based on usage.");
+
+			url 	= "https://subscriptions.zoho.com/api/v1/invoices/" + invID + "?authtoken=" + authtoken + "&organization_id=" + orgID;
+			request = "Updating Invoice";
+			resp 	= putUrl(url,paramsMap.tostring());
+			
+			if(resp.get("code") == 0)
+			{
+				resp = getUrl(updateCustomerStatusScriptUrl + "?id=" + custID + "&cmr=" + currentMonthReading);
+			}
+			else
+			{
+				errorMessage = resp.get("message");
+				sendmail
+				[
+					from :zoho.adminuserid
+					to :zoho.adminuserid
+					subject :"Error occured in Google sheet integration custom function while " + request
+					message :"<b>Affected url :</b><br>" + url + "<br><b>Error Message</b><br>" + errorMessage
+				]
+			}
+		}
+	}
+	else
+	{
+		sendmail
+		[
+			from :zoho.adminuserid
+			to :zoho.adminuserid
+			subject :"Error occured in Google sheet integration custom function"
+			message :"The customer is not found in the Google Sheet."
+		]
+	}
+}
