@@ -1,0 +1,51 @@
+/*
+	
+  This is a sample function written for automating your workflow in Zoho Subscriptions, a recurring billing and subscription
+  management software.
+
+  Entity - Invoice
+
+  * This custom function is used to configure a custom button.
+  * It will share the invoice url to the customer's mobile number on a button click.
+	
+*/
+
+// Append the area & country code as prefix as per your requirements.
+phoneNumber    = "";
+contactPersons = invoice.get("contactpersons");
+
+for each  contact in contactPersons
+{
+	if(!contact.get("phone").isBlank())
+	{
+		phoneNumber = contact.get("phone");
+	}
+	else if(!contact.get("mobile").isBlank())
+	{
+		phoneNumber = contact.get("mobile");
+	}
+}
+
+resultMap = Map();
+// 0 - Success ; Other than 0 will consider as failure
+
+if(phoneNumber.isBlank())
+{
+	  resultMap.put("message","Phone number not found");
+	  resultMap.put("code",1);
+}
+else
+{
+    //Removing hyphenated values, paranthesis and leading "0"s
+    validWaNumber = phoneNumber.replaceAll("[+()-]+","").replaceAll(" ","").replaceFirst("^0+(?!$)","");
+  
+    // Customize the text as per your needs
+    text = "Hi " + invoice.get("customer_name") + "!,\n" + "Please pay for " + invoice.get("number") + " using this link " + invoice.get("invoice_url");
+	
+    url = "https://api.whatsapp.com/send?phone=" + validWaNumber + "&text=Hi";
+    openUrl(url,"new window");
+  
+    resultMap.put("message","Success");
+    resultMap.put("code",0);
+}
+return resultMap;
