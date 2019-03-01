@@ -19,4 +19,4 @@ Every business is unique and each of them follows a specific workflow. While man
 5. [*SMS Reminders using TextLocal*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/sms_for_subscription_business_using_textlocal.ds)
 6. [*Refer and Earn Workflow*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/subscription_refer_and_earn_workflow.ds)
 7. [*Google Sheet integration for Metered Billing*](https://github.com/zoho/subscriptions-workflow-samples/tree/master/CustomFunctions/google_sheet_for_metered_billing)
-8 . [*WhatsApp's Click to Chat integration*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/whatsapp_click_to_chat.ds)
+8. [*WhatsApp's Click to Chat integration*](https://github.com/zoho/subscriptions-workflow-samples/blob/master/CustomFunctions/whatsapp_click_to_chat.ds)
