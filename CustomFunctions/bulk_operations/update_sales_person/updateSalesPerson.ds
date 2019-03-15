@@ -21,10 +21,10 @@ string UPDATESALESPERSON(string subscriptionID, string salesPersonName)
 
 	if(response.get("code") == 0)
 	{
-		return "Yes";
+		return "Updated";
 	}
 	else
 	{
-		return "No";
+		return "Failed to update";
 	}
 }
