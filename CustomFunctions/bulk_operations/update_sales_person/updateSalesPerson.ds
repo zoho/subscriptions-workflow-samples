@@ -1,0 +1,30 @@
+/*
+	
+	* This deluge script is used to update salesperson to a subscription.
+	* It can be used for bulk operations alongside with Zoho Sheets.
+	
+*/
+
+string UPDATESALESPERSON(string subscriptionID, string salesPersonName)
+{
+	//-- Paste your authtoken and organizationID in the below variables.
+
+	authtoken      = "";
+	organizationID = "";
+
+	data = Map();
+	data.put("salesperson_name",salesPersonName);
+
+	url = "https://subscriptions.zoho.com/api/v1/subscriptions/" + subscriptionID + "?authtoken=" + authtoken + "&organization_id=" +organizationID;
+
+	response = postUrl(url,data.toString(),{"X-HTTP-Method-Override":"PUT"});
+
+	if(response.get("code") == 0)
+	{
+		return "Yes";
+	}
+	else
+	{
+		return "No";
+	}
+}

@@ -1,0 +1,36 @@
+/*
+	
+	* This deluge script is used to update customfields to a subscription.
+	* It can be used for bulk operations alongside with Zoho Sheets.
+	
+*/
+
+string UPDATECUSTOMFIELDS(string subscriptionID, string cfValue)
+{
+	//-- Paste your authtoken and organizationID in the below variables.
+
+	authtoken      = "289ce1089b8785bbcd1936869772237d";
+	organizationID = "685849981";
+	
+	customFieldsList = list();
+	customField      = Map();
+	customField.put("customfield_id", "1796651000000068161");
+	customField.put("value", cfValue);
+	customFieldsList.add(customField);
+	
+	payloadMap = Map();
+	payloadMap.put("custom_fields", customFieldsList);
+	
+	url = "https://subscriptions.zoho.com/api/v1/subscriptions/" + subscriptionID + "/customfields?authtoken=" + authtoken + "&organization_id=" +organizationID;
+
+	response = postUrl(url, payloadMap.toString());
+	
+	if(response.get("code") == 0)
+	{
+		return "Yes";
+	}
+	else
+	{
+		return "No";
+	}
+}
