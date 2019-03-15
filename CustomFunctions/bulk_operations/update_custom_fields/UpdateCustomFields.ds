@@ -30,10 +30,10 @@ string UPDATECUSTOMFIELDS(string subscriptionID, string cfValue)
 	
 	if(response.get("code") == 0)
 	{
-		return "Yes";
+		return "Updated";
 	}
 	else
 	{
-		return "No";
+		return "Failed to update";
 	}
 }
