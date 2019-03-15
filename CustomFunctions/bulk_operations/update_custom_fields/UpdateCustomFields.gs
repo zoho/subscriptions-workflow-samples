@@ -33,11 +33,11 @@ function updateCustomFields(subscriptionID, cfValue)
       
   if(response.getResponseCode() == 200)
   {
-     return "Yes";
+     return "Updated";
   }
   else
   {
-     return "No";
+     return "Failed to update";
   }
 }
 
