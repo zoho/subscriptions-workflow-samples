@@ -9,13 +9,16 @@ string UPDATECUSTOMFIELDS(string subscriptionID, string cfValue)
 {
 	//-- Paste your authtoken and organizationID in the below variables.
 
-	authtoken      = "289ce1089b8785bbcd1936869772237d";
-	organizationID = "685849981";
+	authtoken      = "";
+	organizationID = "";
 	
 	customFieldsList = list();
 	customField      = Map();
-	customField.put("customfield_id", "1796651000000068161");
+	
+	// -- Paste your customField ID here.
+	customField.put("customfield_id", "");
 	customField.put("value", cfValue);
+	
 	customFieldsList.add(customField);
 	
 	payloadMap = Map();
