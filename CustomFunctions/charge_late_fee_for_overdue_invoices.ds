@@ -1,0 +1,48 @@
+/*
+
+  This is a sample Custom Function written to be used in Workflow automation of Zoho Subscriptions, 
+  a recurring billing and subscriptions management software.
+	
+  This custom function automatically chages Late Fee for overdue invoices based on the workflow configured.
+
+  Module            - Invoice
+  WorkflowType      - Date Based
+  Date of Execution - 3 day(s) after Due Date [Change as per your preference]
+  Execution Time	  - 00 00 [Change as per your preference]
+
+*/
+
+// -- Paste your authtoken and latefee Ledger Account ID in the below variables.
+authtoken 	      = "";
+lateFeeAccountID  = "";
+
+// -- Change the late fee amount and invoice description as per your needs.
+lateFeeAmount     = 10;
+invReason	        = "Late Payment Fee";
+invDescription    = "Charges for late payment for the invoice "+invoice.get("number");
+
+organizationID    = organization.get("organization_id");
+subscriptionID    = invoice.get("subscriptions").get(0).get("subscription_id");
+
+payloadMap = Map();
+payloadMap.put("account_id", lateFeeAccountID);
+payloadMap.put("amount", lateFeeAmount);
+payloadMap.put("name", invReason);
+payloadMap.put("description", invDescription);
+
+url 		  = "https://subscriptions.zoho.com/api/v1/subscriptions/"+subscriptionID+"/charge?authtoken="+authtoken+"&organization_id="+organizationID;
+request 	= "Charging Late Fee for "+invoice.get("number");
+response 	= postUrl(url, payloadMap.tostring());
+
+// -- If the custom function fails to execute, an email will be sent to admin's email address.
+if(response.get("code") != 0)
+{
+	errorMessage = response.get("message");
+	sendmail
+	[
+		from :zoho.adminuserid
+		to :zoho.adminuserid
+		subject :"Error occured in Custom Function while " + request
+		message :"<b>Affected url :</b><br>" + url + "<br><b>Error Message</b><br>" + errorMessage
+	]
+}
