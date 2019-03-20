@@ -8,12 +8,12 @@
   Module            - Invoice
   WorkflowType      - Date Based
   Date of Execution - 3 day(s) after Due Date [Change as per your preference]
-  Execution Time	  - 00 00 [Change as per your preference]
+  Execution Time    - 00 00 [Change as per your preference]
 
 */
 
 // -- Paste your authtoken and latefee Ledger Account ID in the below variables.
-authtoken 	      = "";
+authtoken 	  = "";
 lateFeeAccountID  = "";
 
 // -- Change the late fee amount and invoice description as per your needs.
@@ -30,7 +30,7 @@ payloadMap.put("amount", lateFeeAmount);
 payloadMap.put("name", invReason);
 payloadMap.put("description", invDescription);
 
-url 		  = "https://subscriptions.zoho.com/api/v1/subscriptions/"+subscriptionID+"/charge?authtoken="+authtoken+"&organization_id="+organizationID;
+url 		= "https://subscriptions.zoho.com/api/v1/subscriptions/"+subscriptionID+"/charge?authtoken="+authtoken+"&organization_id="+organizationID;
 request 	= "Charging Late Fee for "+invoice.get("number");
 response 	= postUrl(url, payloadMap.tostring());
 
