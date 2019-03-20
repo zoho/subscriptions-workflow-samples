@@ -10,6 +10,9 @@
   Date of Execution - 3 day(s) after Due Date [Change as per your preference]
   Execution Time    - 00 00 [Change as per your preference]
 
+  Advanced Filter:
+  [When Status is Overdue]
+
 */
 
 // -- Paste your authtoken and latefee Ledger Account ID in the below variables.
