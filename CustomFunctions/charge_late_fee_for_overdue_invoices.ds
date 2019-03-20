@@ -18,7 +18,7 @@ lateFeeAccountID  = "";
 
 // -- Change the late fee amount and invoice description as per your needs.
 lateFeeAmount     = 10;
-invReason	        = "Late Payment Fee";
+invReason	  = "Late Payment Fee";
 invDescription    = "Charges for late payment for the invoice "+invoice.get("number");
 
 organizationID    = organization.get("organization_id");
