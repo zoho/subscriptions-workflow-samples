@@ -42,7 +42,7 @@ else
     // Customize the text as per your needs
     text = "Hi " + invoice.get("customer_name") + "!,\n" + "Please pay for " + invoice.get("number") + " using this link " + invoice.get("invoice_url");
 	
-    url = "https://api.whatsapp.com/send?phone=" + validWaNumber + "&text="+text;
+    url = "https://api.whatsapp.com/send?phone=" + validWaNumber + "&text=" + zoho.encryption.urlEncode(text);
     openUrl(url,"new window");
   
     resultMap.put("message","Success");
