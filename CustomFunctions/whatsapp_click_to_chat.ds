@@ -39,7 +39,7 @@ if(phoneNumber.isBlank())
 else
 {
     //Removing hyphenated values, paranthesis and leading "0"s
-    validWaNumber = phoneNumberPrefix + phoneNumber.replaceAll("[+()-]+","").replaceAll(" ","").replaceFirst("^0+(?!$)","");
+    validWaNumber = (phoneNumberPrefix + phoneNumber).replaceAll("[+()-]+","").replaceAll(" ","").replaceFirst("^0+(?!$)","");
   
     // Customize the text as per your needs
     text = "Hi " + invoice.get("customer_name") + "!,\n" + "Please pay for " + invoice.get("number") + " using this link " + invoice.get("invoice_url");
