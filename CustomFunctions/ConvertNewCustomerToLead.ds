@@ -1,0 +1,103 @@
+/*
+	
+  This is a sample function written for automating your workflow in Zoho Subscriptions, a recurring billing and subscription
+  management software.
+
+  Module           - Subscriptions.
+  Predefined event - New Subscription.
+
+  * This custom function is used to convert a Lead in Zoho CRM to a Contact/Account.
+	
+*/
+
+// -- Place your valid CRM auhtoken here.
+crmAuthtoken = "";
+
+customer      = subscriptions.get("customer");
+customerEmail = customer.get("email");
+
+// -- Search the lead with the email-address in Zoho CRM.
+
+searchParams = "authtoken=" + crmAuthtoken + "&criteria=" + "(Email:" + customerEmail + ")";
+url          = "https://crm.zoho.com/crm/private/json/Leads/searchRecords?" + searchParams;
+
+resp = getUrl(url);
+
+// Retrieving the details of the search result.
+response = resp.get("response");
+
+if(response.contains("error"))
+{
+	sendmail
+	[
+		from :zoho.adminuserid
+		to :zoho.adminuserid
+		subject :"Error occured in converting CRM Lead Custom Function"
+		message :"<br><b>Error Message</b><br>" + response.get("error").get("message")
+	]
+}
+else if(response.contains("nodata"))
+{
+	sendmail
+	[
+		from :zoho.adminuserid
+		to :zoho.adminuserid
+		subject :"Error occured in converting CRM Lead Custom Function"
+		message :"No Lead found for the customer's Email address("+customerEmail+") in Zoho CRM. Please check manually from your end."
+	]
+}
+else if(response.contains("result"))
+{
+	result = response.get("result");
+	rowObj = result.get("Leads").get("row");
+
+	if(rowObj.get("no").equals("1"))
+	{
+		flJsonArray = rowObj.get("FL");
+		leadID = "";
+
+		for each  fl in flJsonArray
+		{
+			if(fl.get("val").equals("LEADID"))
+			{
+				leadID = fl.get("content");
+				break;
+			}
+		}
+
+		values_map = Map();
+		values_map.put("overwrite",true);
+
+		if(!customer.get("zcrm_account_id").isBlank())
+		{
+			values_map.put("Accounts",customer.get("zcrm_account_id"));
+		}
+		else if(!customer.get("zcrm_contact_id").isBlank())
+		{
+			values_map.put("Contacts",customer.get("zcrm_contact_id"));
+		}
+
+		response = zoho.crm.convertLead(leadID.toNumber(),values_map);
+
+		if(response.contains("status") && response.get("status").equals("error"))
+		{
+			sendmail
+			[
+				from :zoho.adminuserid
+				to :zoho.adminuserid
+				subject :"Error occured in converting CRM Lead Custom Function"
+		    message :"Error occured while converting the lead in Zoho CRM. Please convert manually."	
+			]
+		}
+	}
+	else
+	{
+		sendmail
+		[
+			from :zoho.adminuserid
+			to :zoho.adminuserid
+			subject :"Error occured in converting CRM Lead Custom Function"
+		  message :"More than one Lead found with the same Email Address("+customerEmail+"). Please convert the lead manually."
+		]
+	}
+}
