@@ -1,6 +1,15 @@
 /*
-This is a sample function. Uncomment to execute or make changes to this function.
-organizationID = organization.get("organization_id");
+	
+  This is a sample function written for automating your workflow in Zoho Subscriptions, a recurring billing and subscription
+  management software.
+
+  Automation Module - Custom Schedulers
+
+  Frequency         - Daily
+
+  * This custom function is used to configure a custom scheduler to cancel a subscription at a fixed (custom) date with the
+    help of custom fields.
+	
 */
 
 // Enter your authtoken here.
