@@ -1,0 +1,74 @@
+/*
+This is a sample function. Uncomment to execute or make changes to this function.
+organizationID = organization.get("organization_id");
+*/
+
+// Enter your authtoken here.
+authtoken      = "";
+organizationID = organization.get("organization_id");
+
+// Enter the corresponding customViewID and customFieldID here.
+customViewID  = "";
+customFieldID = "";
+
+currentDate = zoho.currentdate.toString("yyyy-MM-dd");
+
+url = "https://subscriptions.zoho.com/api/v1/subscriptions?page=1&per_page=200&customview_id=" + customViewID + "&authtoken=" + authtoken + "&organization_id=" + organizationID;
+
+request  = "Retrieving Subscriptions";
+response = getUrl(url);
+
+if(response.get("code") != 0)
+{
+	errorMessage = response.get("message");
+	sendmail
+	[
+		from :zoho.adminuserid
+		to :zoho.adminuserid
+		subject :"Error occured in Subscription Cancellation Scheduler while " + request
+		message :"<b>Affected url :</b><br>" + url + "<br><b>Error Message</b><br>" + errorMessage
+	]
+	return;
+}
+
+subscriptionList = response.get("subscriptions");
+
+params = Map();
+params.put("cancel_at_end",false);
+
+// Enter the appropriate reason for cancelling the subscription b/w the quotes.
+params.put("reason", "");
+
+for each  subscription in subscriptionList
+{
+	if(subscription.get("status").equals("live"))
+	{
+		customFieldsList = subscription.get("custom_fields");
+
+		for each  customField in customFieldsList
+		{
+			if(customField.get("customfield_id").equals(customFieldID))
+			{
+				if(customField.get("value").equals(currentDate))
+				{
+					subscriptionID = subscription.get("subscription_id");
+
+					response = postUrl("https://subscriptions.zoho.com/api/v1/subscriptions/" + subscriptionID + "/cancel?organization_id=" + organizationID + "&authtoken=" + authtoken, params.tostring());
+
+					if(response.get("code") != 0)
+					{
+						errorMessage = response.get("message");
+						sendmail
+						[
+							from :zoho.adminuserid
+							to :zoho.adminuserid
+							subject :"Error occured in Subscription Cancellation Scheduler"
+							message :"Error in cancelling subscription <br>Error Message:" + errorMessage
+						]
+					}
+				}
+				break;
+			}
+	 	}
+	}
+}
