@@ -63,7 +63,7 @@ for each  subscription in subscriptionList
 							from :zoho.adminuserid
 							to :zoho.adminuserid
 							subject :"Error occured in Subscription Cancellation Scheduler"
-							message :"Error in cancelling subscription <br>Error Message:" + errorMessage
+							message :"Error in cancelling Subscription (Subscription ID -" + subscriptionID + ")  <br>Error Message:" + errorMessage
 						]
 					}
 				}
