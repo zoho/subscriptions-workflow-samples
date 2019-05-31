@@ -1,0 +1,104 @@
+/*
+This is a sample function. Uncomment to execute or make changes to this function.
+organizationID = organization.get("organization_id");
+*/
+
+// Paste authtoken here
+authtoken    = "";
+currentDate  = zoho.currentdate.toString("yyyy-MM-dd");
+currentTime  = currentDate.toTime();
+
+// -- Obtaining the date 7 days earlier.
+lastWeekTime = currentTime.addWeek(-1);
+lastWeekDate =  lastWeekTime.toString("yyyy-MM-dd");
+
+authorizationParams = "&authtoken="+authtoken+"&organization_id="+organization.get("organization_id");
+dateParams          = "from_date="+lastWeekDate+"&to_date="+currentDate;
+
+// -- Fetching Last opportunities report.
+url = "https://subscriptions.zoho.com/api/v1/reports/lost_opportunities?page=1&per_page=2000&response_option=2&"+dateParams+authorizationParams;
+
+request  = "Retrieving Last Opportunities Report";
+response = getUrl(url);
+
+if(response.get("code") != 0)
+{
+	errorMessage = response.get("message");
+	sendmail
+	[
+		from :zoho.adminuserid
+		to :zoho.adminuserid
+		subject :"Error occured in Email Notifications Scheduler while " + request
+		message :"<b>Affected url :</b><br>" + url + "<br><b>Error Message</b><br>" + errorMessage
+	]
+	return;
+}
+else 
+{
+	lastOpportunitiesCount = response.get("payments").size();
+	lastOpportunitiesUrl   = "https://subscriptions.zoho.com/app#/zs-reports/lost_opportunities?from_date="+lastWeekDate;
+}
+
+// -- Getting Trial Expired Subscriptions List.
+url = "https://subscriptions.zoho.com/api/v1/subscriptions?filter_by=SubscriptionStatus.TRIAL_EXPIRED_PREVIOUS_WEEK&response_option=2"+authorizationParams;
+
+request  = "Retrieving Trial Expired Subscriptions";
+response = getUrl(url);
+
+if(response.get("code") != 0)
+{
+	errorMessage = response.get("message");
+	sendmail
+	[
+		from :zoho.adminuserid
+		to :zoho.adminuserid
+		subject :"Error occured in Email Notifications Scheduler while " + request
+		message :"<b>Affected url :</b><br>" + url + "<br><b>Error Message</b><br>" + errorMessage
+	]
+	return;
+}
+else 
+{
+	pageContext 				   = response.get("page_context");
+	trialExpiredSubscriptionsCount = pageContext.get("total");
+	trialExpiredSubscriptionsUrl   = "https://subscriptions.zoho.com/app#/subscriptions?filter_by=SubscriptionStatus.TRIAL_EXPIRED_PREVIOUS_WEEK";
+}
+
+// -- Getting Churned Subscriptions
+
+url ="https://subscriptions.zoho.com/api/v1/reports/churn?response_option=2&"+dateParams+authorizationParams;
+
+request  = "Retrieving Churned Subscriptions";
+response = getUrl(url);
+
+if(response.get("code") != 0)
+{
+	errorMessage = response.get("message");
+	sendmail
+	[
+		from :zoho.adminuserid
+		to :zoho.adminuserid
+		subject :"Error occured in Email Notifications Scheduler while " + request
+		message :"<b>Affected url :</b><br>" + url + "<br><b>Error Message</b><br>" + errorMessage
+	]
+	return;
+}
+else 
+{
+	pageContext 		      = response.get("page_context");
+	churnedSubscriptionsCount = pageContext.get("total");
+	churnedSubscriptionsUrl   = "https://subscriptions.zoho.com/app#/zs-reports/cancellation?"+dateParams;
+}
+
+// -- Construct email message.
+
+subjectText = "Weekly Subscription Reports";
+messageText = "<b>Last Opportunities Report</b><br>Count : "+lastOpportunitiesCount + "<br> URL : "+lastOpportunitiesUrl+"<br><br><b>Trial Expired Subscriptions Report</b><br>Count : "+trialExpiredSubscriptionsCount + "<br> URL : "+trialExpiredSubscriptionsUrl+"<br><br><b>Churned Subscriptions Report</b><br>Count : "+churnedSubscriptionsCount + "<br> URL : "+churnedSubscriptionsUrl;
+
+sendmail
+[
+	from: zoho.adminuserid
+	to: zoho.adminuserid
+	subject: subjectText
+	message: messageText
+]
