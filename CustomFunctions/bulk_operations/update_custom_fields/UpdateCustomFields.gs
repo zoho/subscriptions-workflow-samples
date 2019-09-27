@@ -29,7 +29,11 @@ function updateCustomFields(subscriptionID, cfValue)
         'muteHttpExceptions': true
       };
   
+  Utilities.sleep(1000);
+	
   var response = UrlFetchApp.fetch(url, options);
+	
+  Utilities.sleep(1000);
       
   if(response.getResponseCode() == 200)
   {
