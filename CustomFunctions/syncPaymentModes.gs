@@ -39,7 +39,7 @@ function syncPaymentModes()
           var modeName = values[i][0]; 
           var isPresent = false;
          
-          for(var j=0; j< paymentModes.length; j++)
+          for(var j=0; j< paymentModes.length; ++j)
           {
              var paymentModeName = paymentModes[j].name;
             
