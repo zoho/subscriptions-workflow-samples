@@ -31,15 +31,15 @@ function syncPaymentModes()
      
        var values = SpreadsheetApp.getActiveSheet().getDataRange().getValues();
         
-       for(i=1; i < values.length-1; ++i)
+       for(i = 1; i < values.length-1; ++i)
        {
-          var updateCellIndex = i+1;
-          var toUpdateCell    = "B"+ updateCellIndex ; // Column B in spreadsheet, which updates the status for each payment mode.
+          var updateCellIndex = i + 1;
+          var toUpdateCell    = "B" + updateCellIndex; // Column B in spreadsheet, which updates the status for each payment mode.
     
           var modeName = values[i][0]; 
           var isPresent = false;
          
-          for(var j=0; j< paymentModes.length; ++j)
+          for(var j = 0; j < paymentModes.length; ++j)
           {
              var paymentModeName = paymentModes[j].name;
             
@@ -51,7 +51,7 @@ function syncPaymentModes()
              }
           }
           
-         // Update the status for each payment mode.
+         // Update the status for each payment mode in sheet.
          if(isPresent)
          {
             SpreadsheetApp.getActiveSheet().getRange(toUpdateCell).setValue('Yes');
@@ -62,7 +62,7 @@ function syncPaymentModes()
          }
        }
      
-     showAlert();
+       showAlert();
    }
 
 }
