@@ -30,9 +30,17 @@ subscriptionList = invoice.get("subscriptions").toJSONList();
 // Place your authtoken within the double quotes.
 authtoken        = "";
 
+// Place the churn message ID value here, if your organization is using advanced churn settings. If not, leave it blank as such.
+churnMessageID = "";
+
 params = Map();
 params.put("cancel_at_end",false);
 params.put("reason","Payment not made even after the expected payment date");
+
+if(!churnMessageID.isBlank())
+{
+   params.put("churn_message_id",churnMessageID);
+}
 
 payload = Map();
 payload.put("JSONString",params);
