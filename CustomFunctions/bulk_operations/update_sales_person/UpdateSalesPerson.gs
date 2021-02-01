@@ -9,12 +9,12 @@
 function updateSalesPerson(subscriptionID, salesPersonName)
 {
 
-   //-- Paste your authtoken and organizationID in the below variables.
+   //-- Paste your accessToken and organizationID in the below variables.
 
-   var authtoken      = "";
-   var organizationID = "";
+   var accessToken      = "";
+   var organizationID   = "";
   
-   var headers  = {'Authorization':'Zoho-authtoken '+authtoken, 'X-com-zoho-subscriptions-organizationid' : organizationID};
+   var headers  = {'Authorization':'Zoho-oauthtoken '+accessToken, 'X-com-zoho-subscriptions-organizationid' : organizationID};
    var data     = {"salesperson_name":salesPersonName};
   
    var url      = "https://subscriptions.zoho.com/api/v1/subscriptions/"+subscriptionID;
