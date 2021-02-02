@@ -7,13 +7,13 @@
 
   Frequency         - Daily
 
+  Place your {{connection name}} in "YOUR_CONNECTION_NAME" variables.
+
   * This custom function is used to configure a custom scheduler to cancel a subscription at a fixed (custom) date with the
     help of custom fields.
 	
 */
 
-// Enter your authtoken here.
-authtoken      = "";
 organizationID = organization.get("organization_id");
 
 // Enter the corresponding customViewID and customFieldID here.
@@ -22,10 +22,15 @@ customFieldID = "";
 
 currentDate = zoho.currentdate.toString("yyyy-MM-dd");
 
-url = "https://subscriptions.zoho.com/api/v1/subscriptions?page=1&per_page=200&customview_id=" + customViewID + "&authtoken=" + authtoken + "&organization_id=" + organizationID;
+url = "https://subscriptions.zoho.com/api/v1/subscriptions?page=1&per_page=200&customview_id=" + customViewID + "&organization_id=" + organizationID;
 
 request  = "Retrieving Subscriptions";
-response = getUrl(url);
+
+response = invokeUrl [
+    url : url
+    type : GET
+    connection : "YOUR_CONNECTION_NAME"
+];
 
 if(response.get("code") != 0)
 {
@@ -62,7 +67,14 @@ for each  subscription in subscriptionList
 				{
 					subscriptionID = subscription.get("subscription_id");
 
-					response = postUrl("https://subscriptions.zoho.com/api/v1/subscriptions/" + subscriptionID + "/cancel?organization_id=" + organizationID + "&authtoken=" + authtoken, params.tostring());
+					cancelUrl = "https://subscriptions.zoho.com/api/v1/subscriptions/" + subscriptionID + "/cancel?organization_id=" + organizationID;
+
+					response = invokeUrl [
+    					url : cancelUrl
+    					type : POST
+    					parameters : params.toString()
+    					connection : "YOUR_CONNECTION_NAME"
+					];
 
 					if(response.get("code") != 0)
 					{

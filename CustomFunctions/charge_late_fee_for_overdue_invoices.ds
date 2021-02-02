@@ -5,6 +5,8 @@
 	
   This custom function automatically chages Late Fee for overdue invoices based on the workflow configured.
 
+  Place your {{connection name}} in "YOUR_CONNECTION_NAME" variable.
+
   Module            - Invoice
   WorkflowType      - Date Based
   Date of Execution - 3 day(s) after Due Date [Change as per your preference]
@@ -15,8 +17,7 @@
 
 */
 
-// -- Paste your authtoken and latefee Ledger Account ID in the below variables.
-authtoken 	  = "";
+// -- Paste your latefee Ledger Account ID in the below variable.
 lateFeeAccountID  = "";
 
 // -- Change the late fee amount and invoice description as per your needs.
@@ -33,9 +34,15 @@ payloadMap.put("amount", lateFeeAmount);
 payloadMap.put("name", invReason);
 payloadMap.put("description", invDescription);
 
-url 		= "https://subscriptions.zoho.com/api/v1/subscriptions/"+subscriptionID+"/charge?authtoken="+authtoken+"&organization_id="+organizationID;
+url 		= "https://subscriptions.zoho.com/api/v1/subscriptions/"+subscriptionID+"/charge?organization_id="+organizationID;
 request 	= "Charging Late Fee for "+invoice.get("number");
-response 	= postUrl(url, payloadMap.tostring());
+
+response = invokeUrl [
+    url : url
+    type : POST
+    parameters : payloadMap.toString()
+    connection : "YOUR_CONNECTION_NAME"
+];
 
 // -- If the custom function fails to execute, an email will be sent to admin's email address.
 if(response.get("code") != 0)
