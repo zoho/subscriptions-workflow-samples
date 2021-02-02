@@ -1,10 +1,12 @@
 /*
 This is a sample function. Uncomment to execute or make changes to this function.
 organizationID = organization.get("organization_id");
+
+Place your {{connection name}} in "YOUR_CONNECTION_NAME" variables.
+
 */
 
-// Paste authtoken here
-authtoken    = "";
+
 currentDate  = zoho.currentdate.toString("yyyy-MM-dd");
 currentTime  = currentDate.toTime();
 
@@ -12,14 +14,19 @@ currentTime  = currentDate.toTime();
 lastWeekTime = currentTime.addWeek(-1);
 lastWeekDate =  lastWeekTime.toString("yyyy-MM-dd");
 
-authorizationParams = "&authtoken="+authtoken+"&organization_id="+organization.get("organization_id");
+authorizationParams = "&organization_id="+organization.get("organization_id");
 dateParams          = "from_date="+lastWeekDate+"&to_date="+currentDate;
 
 // -- Fetching Last opportunities report.
 url = "https://subscriptions.zoho.com/api/v1/reports/lost_opportunities?page=1&per_page=2000&response_option=2&"+dateParams+authorizationParams;
 
 request  = "Retrieving Last Opportunities Report";
-response = getUrl(url);
+
+response = invokeUrl [
+    url : url
+    type : GET
+    connection : "YOUR_CONNECTION_NAME"
+];
 
 if(response.get("code") != 0)
 {
@@ -43,7 +50,12 @@ else
 url = "https://subscriptions.zoho.com/api/v1/subscriptions?filter_by=SubscriptionStatus.TRIAL_EXPIRED_PREVIOUS_WEEK&response_option=2"+authorizationParams;
 
 request  = "Retrieving Trial Expired Subscriptions";
-response = getUrl(url);
+
+response = invokeUrl [
+    url : url
+    type : GET
+    connection : "YOUR_CONNECTION_NAME"
+];
 
 if(response.get("code") != 0)
 {
@@ -69,7 +81,12 @@ else
 url ="https://subscriptions.zoho.com/api/v1/reports/churn?response_option=2&"+dateParams+authorizationParams;
 
 request  = "Retrieving Churned Subscriptions";
-response = getUrl(url);
+
+response = invokeUrl [
+    url : url
+    type : GET
+    connection : "YOUR_CONNECTION_NAME"
+];
 
 if(response.get("code") != 0)
 {

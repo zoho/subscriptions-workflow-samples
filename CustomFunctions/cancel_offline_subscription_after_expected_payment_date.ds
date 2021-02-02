@@ -14,7 +14,7 @@
   
   Advanced Filter   - When Status isn't paid.
 	
-  Place your {{authtoken}} in authtoken variable.
+  Place your {{connection name}} in "YOUR_CONNECTION_NAME" variables.
 	
   
   * This custom function cancels the offline subscriptions, if the renewed invoice is not paid 
@@ -26,9 +26,6 @@
 
 organizationID   = organization.get("organization_id");
 subscriptionList = invoice.get("subscriptions").toJSONList();
-
-// Place your authtoken within the double quotes.
-authtoken        = "";
 
 // Place the churn message ID value here, if your organization is using advanced churn settings. If not, leave it blank as such.
 churnMessageID = "";
@@ -51,7 +48,16 @@ for each  subscription in subscriptionList
        // Get the subscription associated with the invoice and cancel it immediately.
   
  	subscriptionID = subscription.get("subscription_id");
-	response = postUrl("https://subscriptions.zoho.com/api/v1/subscriptions/" + subscriptionID + "/cancel?organization_id=" + organizationID + "&authtoken=" + authtoken, payload);
+
+	url = "https://subscriptions.zoho.com/api/v1/subscriptions/" + subscriptionID + "/cancel?organization_id=" + organizationID;
+
+	response = invokeUrl [
+    	url : url
+    	type : POST
+    	parameters : payload.toString()
+    	connection : "YOUR_CONNECTION_NAME"
+	];
+
 	if(response.get("code") != 0)
 	{
 		errorMessage = response.get("message");

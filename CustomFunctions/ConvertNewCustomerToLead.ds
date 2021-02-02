@@ -6,22 +6,25 @@
   Module           - Subscriptions.
   Predefined event - New Subscription.
 
+  Place your {{connection name}} in "YOUR_CONNECTION_NAME" variable.
+
   * This custom function is used to convert a Lead in Zoho CRM to a Contact/Account.
 	
 */
-
-// -- Place your valid CRM auhtoken here.
-crmAuthtoken = "";
 
 customer      = subscriptions.get("customer");
 customerEmail = customer.get("email");
 
 // -- Search the lead with the email-address in Zoho CRM.
 
-searchParams = "authtoken=" + crmAuthtoken + "&criteria=" + "(Email:" + customerEmail + ")";
+searchParams = "criteria=" + "(Email:" + customerEmail + ")";
 url          = "https://crm.zoho.com/crm/private/json/Leads/searchRecords?" + searchParams;
 
-resp = getUrl(url);
+resp = invokeUrl [
+    url : url
+    type : GET
+    connection : "YOUR_CONNECTION_NAME"
+];
 
 // Retrieving the details of the search result.
 response = resp.get("response");

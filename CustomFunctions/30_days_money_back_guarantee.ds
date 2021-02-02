@@ -8,7 +8,7 @@
 	
 	Change this {{daysToConsider}} variable as per your need.
 	
-	Place your {{authtoken}} in authtoken variable.
+	Place your {{connection name}} in "YOUR_CONNECTION_NAME" variables.
 	
 	* This custom function refunds the payment done for a subscription, if it is cancelled within 30 days. 
 	* When a subscription is cancelled, the last sent invoice details are retrieved.
@@ -31,17 +31,18 @@ if(totalDays > dayToConsider)
 domain 	       = "https://subscriptions.zoho.com";
 organizationID = organization.get("organization_id");
 
-//	Paste your authtoken between the quotes.
-authtoken = "";
-
 invoiceID = subscriptions.get("child_invoice_id");
 if(invoiceID.isEmpty())
 {
 	return;
 }
-url = domain + "/api/v1/invoices/" + invoiceID + "?organization_id=" + organizationID + "&authtoken=" + authtoken;
+url = domain + "/api/v1/invoices/" + invoiceID + "?organization_id=" + organizationID;
 request = "retriving invoice";
-response = getUrl(url);
+response = invokeUrl [
+    url : url
+    type : GET
+    connection : "YOUR_CONNECTION_NAME"
+];
 // Retrieving the details of the last paid invoice.
 if(response.get("code") != 0)
 {
@@ -80,9 +81,14 @@ if(invoiceStatus == "paid")
 		paramsMap.put("customer_id",customerID);
 		paramsMap.put("date",creditNoteDate);
 		paramsMap.put("creditnote_items",creditNoteItemList);
-		url = domain + "/api/v1/creditnotes?organization_id=" + organizationID + "&authtoken=" + authtoken;
+		url = domain + "/api/v1/creditnotes?organization_id=" + organizationID;
 		request = "creating Credit Note";
-		response = postUrl(url,paramsMap.tostring());
+		response = invokeUrl [
+    		url : url
+    		type : POST
+    		parameters : paramsMap.toString()
+    		connection : "YOUR_CONNECTION_NAME"
+		];
 	}
 	else
 	{
@@ -91,18 +97,28 @@ if(invoiceStatus == "paid")
 		refundDescription = "Subscription is cancelled and amount is auto-refunded";
 		paramsMap.put("amount",paidAmount);
 		paramsMap.put("description",refundDescription);
-		url = domain + "/api/v1/payments/" + paymentID + "/refunds?organization_id=" + organizationID + "&authtoken=" + authtoken;
+		url = domain + "/api/v1/payments/" + paymentID + "/refunds?organization_id=" + organizationID;
 		request = "refunding payment";
-		response = postUrl(url,paramsMap.tostring());
+		response = invokeUrl [
+    		url : url
+    		type : POST
+    		parameters : paramsMap.toString()
+    		connection : "YOUR_CONNECTION_NAME"
+		];
 	}
 }
 // Handling the use case for unpaid invoice, by simply voiding it.
 else if(invoiceStatus == "sent" || invoiceID == "overdue")
 {
 	paramsMap.put("reason","subscription cancelled");
-	url = domain + "/api/v1/invoices/" + invoiceID + "/void?organization_id=" + organizationID + "&authtoken=" + authtoken;
+	url = domain + "/api/v1/invoices/" + invoiceID + "/void?organization_id=" + organizationID;
 	request = "voiding invoice";
-	response = postUrl(url,paramsMap.tostring());
+	response = invokeUrl [
+    		url : url
+    		type : POST
+    		parameters : paramsMap.toString()
+    		connection : "YOUR_CONNECTION_NAME"
+		];
 }
 
 // If error occurs in any of the API requests, an email will be sent to the admin user with the request URL and it's error.

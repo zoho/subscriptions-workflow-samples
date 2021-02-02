@@ -9,7 +9,7 @@
 	
   Predefined Event - New Subscription.
 	
-  Place your {{authtoken}} in authtoken variable.
+  Place your {{connection name}} in "YOUR_CONNECTION_NAME" variables.
 
   
   * This custom function raises a credit note for the referrer with a fixed incentive amount.
@@ -19,9 +19,6 @@
 */
 
 organizationID = organization.get("organization_id");
-
-// -- Paste your authtoken here.
-authtoken      = "";
 
 domain         = "https://subscriptions.zoho.com";
 
@@ -44,9 +41,14 @@ for each  customField in customerCustomerFields
 
 if(referrerEmail != null && !isBlank(referrerEmail))
 {
-	params  = "&response_option=0" + "&email_contains=" + referrerEmail + "&organization_id=" + organizationID + "&authtoken=" + authtoken;
+	params  = "&response_option=0" + "&email_contains=" + referrerEmail + "&organization_id=" + organizationID;
 	request = "Searching referrer Customer";
-	response = getUrl(domain + "/api/v1/customers?page=1&per_page=10" + params);
+
+	response = invokeUrl [
+    	url : domain + "/api/v1/customers?page=1&per_page=10" + params
+    	type : GET
+    	connection : "YOUR_CONNECTION_NAME"
+	];
 
 	if(response.get("code") == 0)
 	{
@@ -80,9 +82,15 @@ if(referrerEmail != null && !isBlank(referrerEmail))
 			paramsMap.put("date",creditNoteDate);
 			paramsMap.put("creditnote_items",creditNoteItemList);
       
-			url = domain + "/api/v1/creditnotes?organization_id=" + organizationID + "&authtoken=" + authtoken;
+			url = domain + "/api/v1/creditnotes?organization_id=" + organizationID;
 			request = "Creating Credit Note";
-			response = postUrl(url,paramsMap.tostring());
+			
+			response = invokeUrl [
+    			url : url
+    			type : POST
+    			parameters : paramsMap.toString()
+    			connection : "YOUR_CONNECTION_NAME"
+			];
       
 			if(response.get("code") != 0)
 			{

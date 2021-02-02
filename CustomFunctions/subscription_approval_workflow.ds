@@ -10,7 +10,7 @@
 	
   Prequisites:
   
-  1) Place your {{authtoken}} in authtoken variable.
+  1) Place your {{connection name}} in "YOUR_CONNECTION_NAME" variables.
   2) Create a dropdown custom field for Invoices. Provide the label as 'Approval Status' and two dropdown values as
      'Awaiting Approval' and 'Approved'.
   3) Configure a custom button for Subscriptions module and paste the code below.
@@ -23,8 +23,7 @@
 	
 */
 
-// -- Place your authtoken here.
-authtoken = "";
+
 domain   = "https://subscriptions.zoho.com";
 
 customer     = subscriptions.get("customer");
@@ -99,9 +98,15 @@ if(code = 0)
 		paramsMap = Map();
 		paramsMap.put("renewal_at", nextBillingDate.toString("yyyy-MM-dd"));
     
-                // -- Update the billing date for next cycle.
-		url = domain + "/api/v1/subscriptions/" + subscriptions.get("subscription_id") + "/postpone?organization_id=" + organization.get("organization_id") + "&authtoken=" + authtoken;
-		response = postUrl(url,paramsMap.tostring());
+         // -- Update the billing date for next cycle.
+		url = domain + "/api/v1/subscriptions/" + subscriptions.get("subscription_id") + "/postpone?organization_id=" + organization.get("organization_id");
+		
+		response = invokeUrl [
+    		url : url
+    		type : POST
+    		parameters : paramsMap.toString()
+    		connection : "YOUR_CONNECTION_NAME"
+		];
     
 		code    = response.get("code");
 		message = response.get("message");
