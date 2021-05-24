@@ -9,11 +9,6 @@
 	
 	Place your {{authtoken}} in authtoken variable.
 	
-	* This custom function refunds the payment done for a subscription, if it is cancelled within 30 days. 
-	* When a subscription is cancelled, the last sent invoice details are retrieved.
-	* If the invoice is paid, the amount is refunded (in case of online payment) or a credit note is raised (in case of offline payment).
-	* If the invoice is unpaid, it is marked as void.
-	
 */
 
 
