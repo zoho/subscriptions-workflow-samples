@@ -1,0 +1,111 @@
+
+/*
+	Entity - Invoice
+	
+	Triggers - Invoice Created. 
+	
+	Work flow - When a pending invoice is created, the readings value will be fetched from Zoho Sheet and the
+				invoice will be updated accordingly.
+
+	
+*/
+
+if(invoiceStatus.equalsIgnoreCase("pending"))
+{
+
+	// -- Place the Zoho Sheet ID between the quotes obtained from the URL bar of the browser and also the worksheet name.
+	sheetID       = "";
+	worksheetName = "";
+
+	orgID 		 = organization.get("organization_id");
+	invID 		 = invoice.get("invoice_id");
+	custID 		 = invoice.get("customer_id");
+	customerName = invoice.get("customer_name");
+
+	parameters = Map();
+	parameters.put("method", "worksheet.records.fetch");
+	parameters.put("worksheet_name", worksheetName);
+	parameters.put("criteria", "\"ID\"=\""+custID+"\"");
+	
+	response = invokeUrl [
+    	url : "https://sheet.zoho.com/api/v2/"+sheetID
+   		type : POST
+    	parameters : parameters
+    	connection : "SHEET_CONNECTION_NAME"
+	];
+
+	if(response.get("status") == "success")
+	{
+		record 				= response.get("records").get("0");
+		lastMonthReading    = record.get("Last Month Reading");
+		currentMonthReading = record.get("Closing Reading");
+		totalReading = currentMonthReading - lastMonthReading;
+		
+		/* In this example, invoice will be updated if the reading values exceed 100 units.
+		   Modify it for your needs.
+		*/
+		
+		if(totalReading > 100)
+		{
+			invoiceItems = invoice.get("invoice_items").toJSONList();
+			rate 		 = totalReading - 100;
+
+			invoiceItem = Map();
+			invoiceItem.put("quantity","1");
+			invoiceItem.put("price", rate);
+			invoiceItem.put("description","Charges based on metered billing usage.");
+			invoiceItems.add(invoiceItem);
+
+			paramsMap = Map();
+			paramsMap.put("invoice_items",invoiceItems);
+			paramsMap.put("reason","Invoice line items updated based on usage.");
+
+			url 	= "https://subscriptions.zoho.com/api/v1/invoices/" + invID + "?organization_id=" + orgID;
+			request = "Updating Invoice";
+			
+			resp    = invokeUrl [
+    			url : url
+    			type : PUT
+    			parameters : paramsMap.tostring()
+   				connection : "ZSM_CONNECTION_NAME"
+			];
+			
+			if(resp.get("code") == 0)
+			{
+				parameters.put("method", "worksheet.records.update");
+				data = Map();
+				data.put("ID", custID);
+				data.put("Status", "Updated");
+				parameters.put("data", data);
+				
+				response = invokeUrl [
+    				url : "https://sheet.zoho.com/api/v2/"+sheetID
+   					type : POST
+    				parameters : parameters
+    				connection : "SHEET_CONNECTION_NAME"
+				];
+			}
+			else
+			{
+				errorMessage = resp.get("message");
+				sendmail
+				[
+					from :zoho.adminuserid
+					to :zoho.adminuserid
+					subject :"Error occured in Google sheet integration custom function while " + request
+					message :"<b>Affected url :</b><br>" + url + "<br><b>Error Message</b><br>" + errorMessage
+				]
+			}
+		}
+	}
+	else
+	{
+		sendmail
+		[
+			from :zoho.adminuserid
+			to :zoho.adminuserid
+			subject :"Error occured in Google sheet integration custom function"
+			message :"The customer is not found in the Google Sheet."
+		]
+	}
+}
