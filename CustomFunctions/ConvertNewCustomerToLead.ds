@@ -1,3 +1,4 @@
+
 /*
 	
   This is a sample function written for automating your workflow in Zoho Subscriptions, a recurring billing and subscription
@@ -12,65 +13,48 @@
 	
 */
 
-customer      = subscriptions.get("customer");
+customer = subscriptions.get("customer");
 customerEmail = customer.get("email");
 
 // -- Search the lead with the email-address in Zoho CRM.
-
-searchParams = "criteria=" + "(Email:" + customerEmail + ")";
-url          = "https://crm.zoho.com/crm/private/json/Leads/searchRecords?" + searchParams;
-
-resp = invokeUrl [
-    url : url
-    type : GET
-    connection : "YOUR_CONNECTION_NAME"
+searchParams = "criteria=" + "(Email:equals:" + customerEmail + ")";
+url = "https://www.zohoapis.com/crm/v2/Leads/search?" + searchParams;
+response = invokeurl
+[
+	url :url
+	type :GET
+	connection:"YOUR_CONNECTION_NAME"
 ];
 
 // Retrieving the details of the search result.
-response = resp.get("response");
-
-if(response.contains("error"))
+if(response == null || response.isEmpty())
 {
 	sendmail
 	[
 		from :zoho.adminuserid
 		to :zoho.adminuserid
 		subject :"Error occured in converting CRM Lead Custom Function"
-		message :"<br><b>Error Message</b><br>" + response.get("error").get("message")
+		message :"No Lead found for the customer's Email address(" + customerEmail + ") in Zoho CRM. Please check manually from your end."
 	]
 }
-else if(response.contains("nodata"))
+else if(response.contains("status") && response.get("status").equals("error"))
 {
 	sendmail
 	[
 		from :zoho.adminuserid
 		to :zoho.adminuserid
 		subject :"Error occured in converting CRM Lead Custom Function"
-		message :"No Lead found for the customer's Email address("+customerEmail+") in Zoho CRM. Please check manually from your end."
+		message :"<br><b>Error Message</b><br>" + response.get("message")
 	]
 }
-else if(response.contains("result"))
+else if(response.contains("data"))
 {
-	result = response.get("result");
-	rowObj = result.get("Leads").get("row");
-
-	if(rowObj.get("no").equals("1"))
+	leads = response.get("data");
+	if(leads.size() == 1)
 	{
-		flJsonArray = rowObj.get("FL");
-		leadID = "";
-
-		for each  fl in flJsonArray
-		{
-			if(fl.get("val").equals("LEADID"))
-			{
-				leadID = fl.get("content");
-				break;
-			}
-		}
-
+		leadID = leads.get(0).get("id");
 		values_map = Map();
 		values_map.put("overwrite",true);
-
 		if(!customer.get("zcrm_account_id").isBlank())
 		{
 			values_map.put("Accounts",customer.get("zcrm_account_id"));
@@ -79,9 +63,7 @@ else if(response.contains("result"))
 		{
 			values_map.put("Contacts",customer.get("zcrm_contact_id"));
 		}
-
 		response = zoho.crm.convertLead(leadID.toNumber(),values_map);
-
 		if(response.contains("status") && response.get("status").equals("error"))
 		{
 			sendmail
@@ -89,7 +71,7 @@ else if(response.contains("result"))
 				from :zoho.adminuserid
 				to :zoho.adminuserid
 				subject :"Error occured in converting CRM Lead Custom Function"
-		                message :"Error occured while converting the lead in Zoho CRM. Please convert manually."	
+				message :"Error occured while converting the lead in Zoho CRM. Please convert manually."
 			]
 		}
 	}
@@ -100,7 +82,7 @@ else if(response.contains("result"))
 			from :zoho.adminuserid
 			to :zoho.adminuserid
 			subject :"Error occured in converting CRM Lead Custom Function"
-		        message :"More than one Lead found with the same Email Address("+customerEmail+"). Please convert the lead manually."
+			message :"More than one Lead found with the same Email Address(" + customerEmail + "). Please convert the lead manually."
 		]
 	}
 }
