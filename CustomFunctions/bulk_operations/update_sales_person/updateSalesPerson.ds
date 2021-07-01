@@ -7,17 +7,25 @@
 
 string UPDATESALESPERSON(string subscriptionID, string salesPersonName)
 {
-	//-- Paste your authtoken and organizationID in the below variables.
+	//-- Paste your accessToken and organizationID in the below variables.
 
-	authtoken      = "";
-	organizationID = "";
+	accessToken      = "";
+	organizationID   = "";
 
 	data = Map();
 	data.put("salesperson_name",salesPersonName);
 
+	headerMap = Map();
+	headerMap.put("Authorization", "Zoho-oauthtoken "+accessToken);
+
 	url = "https://subscriptions.zoho.com/api/v1/subscriptions/" + subscriptionID + "?authtoken=" + authtoken + "&organization_id=" +organizationID;
 
-	response = postUrl(url,data.toString(),{"X-HTTP-Method-Override":"PUT"});
+	response = invokeUrl [
+    		url : url
+    		type : PUT
+		parameters : data.toString()
+		headers : headerMap
+	];
 
 	if(response.get("code") == 0)
 	{
