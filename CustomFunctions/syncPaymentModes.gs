@@ -6,12 +6,12 @@
 function syncPaymentModes() 
 {
   
-   //-- Paste your authtoken and organization ID in the below corresponding variables.
+   //-- Paste your accessToken and organization ID in the below corresponding variables.
 
-   var authtoken      = "";
-   var organizationID = "";
+   var accessToken      = "";
+   var organizationID   = "";
   
-   var headers  = {'Authorization':'Zoho-authtoken '+authtoken, 'X-com-zoho-subscriptions-organizationid' : organizationID};
+   var headers  = {'Authorization':'Zoho-oauthtoken '+accessToken, 'X-com-zoho-subscriptions-organizationid' : organizationID};
   
    var options = {
         'method'     : 'get',
