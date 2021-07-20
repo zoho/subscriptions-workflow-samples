@@ -54,7 +54,7 @@ for each  subscription in subscriptionList
 	response = invokeUrl [
     	url : url
     	type : POST
-    	parameters : payload.toString()
+    	parameters : payload
     	connection : "YOUR_CONNECTION_NAME"
 	];
 
