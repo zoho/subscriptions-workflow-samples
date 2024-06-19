@@ -34,7 +34,8 @@ payloadMap.put("amount", lateFeeAmount);
 payloadMap.put("name", invReason);
 payloadMap.put("description", invDescription);
 
-url 		= "https://subscriptions.zoho.com/api/v1/subscriptions/"+subscriptionID+"/charge?organization_id="+organizationID;
+domain = "https://www.zohoapis.com/billing/v1";
+url = domain + "/subscriptions/" + subscriptionID + "/charge?organization_id=" + organizationID;
 request 	= "Charging Late Fee for "+invoice.get("number");
 
 response = invokeUrl [
