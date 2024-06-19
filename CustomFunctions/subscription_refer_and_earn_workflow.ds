@@ -20,7 +20,7 @@
 
 organizationID = organization.get("organization_id");
 
-domain         = "https://subscriptions.zoho.com";
+domain = "https://www.zohoapis.com/billing/v1";
 
 customer               = subscriptions.get("customer");
 customerCustomerFields = customer.get("custom_fields");
