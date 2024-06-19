@@ -7,31 +7,34 @@
 
 string UPDATECUSTOMFIELDS(string subscriptionID, string cfValue)
 {
+
 	//-- Paste your organizationID in the below variables.
 	organizationID = "";
 	customFieldsList = list();
 	customField = Map();
+
 	// -- Paste your customField ID here.
 	customField.put("customfield_id","");
 	customField.put("value",cfValue);
 	customFieldsList.add(customField);
 	payloadMap = Map();
 	payloadMap.put("custom_fields",customFieldsList);
+
 	domain = "https://www.zohoapis.com/billing/v1";
 	url = domain + "/subscriptions/" + subscriptionID + "?organization_id=" + organizationID;
 	response = invokeurl
 	[
-	url :url
-	type :PUT
-	parameters:payloadMap.toString()
-	connection:"YOUR_CONNECTION_NAME"
+		url :url
+		type :PUT
+		parameters:payloadMap.toString()
+		connection:"YOUR_CONNECTION_NAME"
 	];
 	if(response.get("code") == 0)
 	{
-	return "Updated";
+		return "Updated";
 	}
 	else
 	{
-	return "Failed to update";
+		return "Failed to update";
 	}
 }
