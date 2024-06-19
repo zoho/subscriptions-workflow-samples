@@ -7,26 +7,19 @@
 
 string UPDATESALESPERSON(string subscriptionID, string salesPersonName)
 {
-	//-- Paste your accessToken and organizationID in the below variables.
-
-	accessToken      = "";
-	organizationID   = "";
-
+	//-- Paste your organizationID in the below variables.
+	domain = "https://www.zohoapis.com/billing/v1";
+	organizationID = "";
 	data = Map();
 	data.put("salesperson_name",salesPersonName);
-
-	headerMap = Map();
-	headerMap.put("Authorization", "Zoho-oauthtoken "+accessToken);
-
-	url = "https://subscriptions.zoho.com/api/v1/subscriptions/" + subscriptionID + "?authtoken=" + authtoken + "&organization_id=" +organizationID;
-
-	response = invokeUrl [
-    		url : url
-    		type : PUT
-		parameters : data.toString()
-		headers : headerMap
+	url = domain + "/subscriptions/" + subscriptionID + "?organization_id=" + organizationID;
+	response = invokeurl
+	[
+		url :url
+		type :PUT
+		parameters:data.toString()
+		connection:”YOUR_CONNECTION_NAME”
 	];
-
 	if(response.get("code") == 0)
 	{
 		return "Updated";
