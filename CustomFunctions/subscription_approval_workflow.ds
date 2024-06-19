@@ -23,108 +23,80 @@
 	
 */
 
+domain = "https://www.zohoapis.com/billing/v1";
 
-domain   = "https://subscriptions.zoho.com";
+organizationID = organization.get("organization_id");
+subscriptionID = subscriptions.get("subscription_id");
+emailID = subscriptions.get("customer").get("email");
+name = subscriptions.get("name");
+customFields = subscriptions.get("custom_fields").toJSONList();
+cfName = "cf_approval_status";
 
-customer     = subscriptions.get("customer");
-emailAddress = customer.get("email");
-c_fields     = subscriptions.get("custom_fields").toJSONList();
-
-nc_fields = List();
-code    = 0;
-message = "";
-
-// Boolean value to check if the requirement custom field is configured for the subscription.
-isCFPresent = false;
-
-if(c_fields.size() != 0)
-{
-	for each  c_field in c_fields
-	{
-		if(c_field.containValue("Approval Status"))
-		{
-			isCFPresent = true;
-			value       = c_field.get("value");
-      
-			if(value = "Approved")
-			{
-				message = "Already Approved";
-				code = 1;
-			}
-			else
-			{
-				c_field.remove("value");
-				c_field.put("value", "Approved");
-				c_field.remove("value_formatted");
-				c_field.put("value_formatted", "Approved");
-				code = 0;
-			}
-		}
-		nc_fields.add(c_field);
-	}
-}
-
-if(!isCFPresent)
-{
-	code   = 1;
-	message = "Approval Status not set!";
-}
-
-if(code = 0)
-{
-	newCFList = list();
-
-        // -- Update the custom fields list after the required changes.
-	for each  nc_field in nc_fields
-	{
-		cf = Map();
-		cf.put("customfield_id",nc_field.get("customfield_id"));
-		cf.put("value",nc_field.get("value"));
-		newCFList.add(cf);
-	}
-
-	cmap = Map();
-	cmap.put("custom_fields",newCFList);
-	response = zoho.subscriptions.update("Subscriptions", organization.get("organization_id"), subscriptions.get("subscription_id"), cmap);
-
-	code    = response.get("code");
-	message = response.get("message");
-
-	if(code == 0)
-	{
-		currentDate      = zoho.currentdate.toString("yyyy-MM-dd");
-		nextBillingDate  = addDay(currentDate, 30);
-    
-		paramsMap = Map();
-		paramsMap.put("renewal_at", nextBillingDate.toString("yyyy-MM-dd"));
-    
-         // -- Update the billing date for next cycle.
-		url = domain + "/api/v1/subscriptions/" + subscriptions.get("subscription_id") + "/postpone?organization_id=" + organization.get("organization_id");
-		
-		response = invokeUrl [
-    		url : url
-    		type : POST
-    		parameters : paramsMap.toString()
-    		connection : "YOUR_CONNECTION_NAME"
-		];
-    
-		code    = response.get("code");
-		message = response.get("message");
-    
-		if(code == 0)
-		{
-			// -- Sending a confirmation Email to the customer. Change the message as per your wish.
-			sendmail
-			[
-				from :zoho.adminuserid
-				to :emailAddress
-				subject :"Subscription Approved"
-				message :"Your subscription has been approved and your first shipment is on its way. Thank you for the business."
-			]
-		}
-	}
-}
 resultMap = Map();
-resultMap.put("message",message);
-resultMap.put("code",code);
+resultMap.put("code",1);
+isCFPresent = 0;
+
+for each  cf in customFields
+{
+	if(cf.get("api_name").equalsIgnoreCase(cfName))
+	{
+		isCFPresent = 1;
+		if(cf.get("value").equalsIgnoreCase("Approved"))
+		{
+			resultMap.put("message","Subscription Approved Already");
+			return resultMap;
+		}
+		else if(cf.get("value").equalsIgnoreCase("Awaiting Approval"))
+		{
+			cf.put("value","Approved");
+			cf.put("value_formatted","Approved");
+		}
+	}
+}
+
+if(isCFPresent == 0)
+{
+	resultMap.put("message","Custom Fields Not Found");
+	return resultMap;
+}
+params = Map();
+params.put("custom_fields",customFields);
+updateResponse = zoho.billing.update("Subscriptions",organizationID,subscriptionID,params,"YOUR_CONNECTION_NAME");
+
+if(updateResponse.get("code") != 0)
+{
+	resultMap.put("message","Custom Fields Not Updated: " + updateResponse.get("message"));
+	return resultMap;
+}
+
+// update to next billing date
+currentDate = zoho.currentdate.toString("yyyy-MM-dd");
+nextBillingDate = addDay(currentDate,30);
+params = Map();
+params.put("renewal_at",nextBillingDate.toString("yyyy-MM-dd"));
+postponeUrl = domain + "/subscriptions/" + subscriptionID + "/postpone?organization_id=" + organizationID;
+response = invokeurl
+[
+	url :postponeUrl
+	type :POST
+	parameters:params.toString()
+	connection:"YOUR_CONNECTION_NAME"
+];
+
+if(updateResponse.get("code") != 0)
+{
+	resultMap.put("message","Error Occured while updating Next Billing Date: " + updateResponse.get("message"));
+	return resultMap;
+}
+
+sendmail
+[
+	from :zoho.adminuserid
+	to :emailID
+	subject :"Subscription Approved"
+	message :"Your subscription has been approved and your first shipment is on its way. Thank you for the business."
+];
+
+resultMap.put("code",0);
+resultMap.put("message","Subscription name -" + name);
 return resultMap;
