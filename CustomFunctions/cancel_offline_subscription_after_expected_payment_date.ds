@@ -24,40 +24,32 @@
 	
 */
 
-organizationID   = organization.get("organization_id");
+organizationID = organization.get("organization_id");
+domain = "https://www.zohoapis.com/billing/v1";
 subscriptionList = invoice.get("subscriptions").toJSONList();
-
 // Place the churn message ID value here, if your organization is using advanced churn settings. If not, leave it blank as such.
 churnMessageID = "";
-
 params = Map();
 params.put("cancel_at_end",false);
 params.put("reason","Payment not made even after the expected payment date");
-
 if(!churnMessageID.isBlank())
 {
-   params.put("churn_message_id",churnMessageID);
+	params.put("churn_message_id",churnMessageID);
 }
-
 payload = Map();
 payload.put("JSONString",params);
-
 for each  subscription in subscriptionList
 {
-
-       // Get the subscription associated with the invoice and cancel it immediately.
-  
- 	subscriptionID = subscription.get("subscription_id");
-
-	url = "https://subscriptions.zoho.com/api/v1/subscriptions/" + subscriptionID + "/cancel?organization_id=" + organizationID;
-
-	response = invokeUrl [
-    	url : url
-    	type : POST
-    	parameters : payload
-    	connection : "YOUR_CONNECTION_NAME"
+	// Get the subscription associated with the invoice and cancel it immediately.
+	subscriptionID = subscription.get("subscription_id");
+	url = domain + "/subscriptions/" + subscriptionID + "/cancel?organization_id=" + organizationID;
+	response = invokeurl
+	[
+		url :url
+		type :POST
+		parameters:payload
+		connection:"YOUR_CONNECTION_NAME"
 	];
-
 	if(response.get("code") != 0)
 	{
 		errorMessage = response.get("message");

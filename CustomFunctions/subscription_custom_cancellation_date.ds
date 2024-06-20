@@ -19,10 +19,10 @@ organizationID = organization.get("organization_id");
 // Enter the corresponding customViewID and customFieldID here.
 customViewID  = "";
 customFieldID = "";
-
+domain = "https://www.zohoapis.com/billing/v1";
 currentDate = zoho.currentdate.toString("yyyy-MM-dd");
 
-url = "https://subscriptions.zoho.com/api/v1/subscriptions?page=1&per_page=200&customview_id=" + customViewID + "&organization_id=" + organizationID;
+url = domain+"/subscriptions?customview_id=" + customViewID + "&organization_id=" + organizationID;
 
 request  = "Retrieving Subscriptions";
 
@@ -67,7 +67,7 @@ for each  subscription in subscriptionList
 				{
 					subscriptionID = subscription.get("subscription_id");
 
-					cancelUrl = "https://subscriptions.zoho.com/api/v1/subscriptions/" + subscriptionID + "/cancel?organization_id=" + organizationID;
+					cancelUrl = domain+"/subscriptions/" + subscriptionID + "/cancel?organization_id=" + organizationID;
 
 					response = invokeUrl [
     					url : cancelUrl
@@ -75,7 +75,6 @@ for each  subscription in subscriptionList
     					parameters : params.toString()
     					connection : "YOUR_CONNECTION_NAME"
 					];
-
 					if(response.get("code") != 0)
 					{
 						errorMessage = response.get("message");

@@ -18,7 +18,7 @@
 */
 
 // Change the daysToConsider value according to your need.
-dayToConsider = 30;		
+dayToConsider = 30;
 createdDate   = subscriptions.get("activated_at");
 cancelledDate = subscriptions.get("cancelled_at");
 totalDays 	  = days360(createdDate,cancelledDate);
@@ -28,7 +28,7 @@ if(totalDays > dayToConsider)
 	//If the subscription is active for more than (daysToConsider) 30 days, we simnply exit the function.
 	return;
 }
-domain 	       = "https://subscriptions.zoho.com";
+domain = "https://www.zohoapis.com/billing/v1";
 organizationID = organization.get("organization_id");
 
 invoiceID = subscriptions.get("child_invoice_id");
@@ -36,7 +36,7 @@ if(invoiceID.isEmpty())
 {
 	return;
 }
-url = domain + "/api/v1/invoices/" + invoiceID + "?organization_id=" + organizationID;
+url = domain + "/invoices/" + invoiceID + "?organization_id=" + organizationID;
 request = "retriving invoice";
 response = invokeUrl [
     url : url
@@ -81,7 +81,7 @@ if(invoiceStatus == "paid")
 		paramsMap.put("customer_id",customerID);
 		paramsMap.put("date",creditNoteDate);
 		paramsMap.put("creditnote_items",creditNoteItemList);
-		url = domain + "/api/v1/creditnotes?organization_id=" + organizationID;
+		url = domain + "/creditnotes?organization_id=" + organizationID;
 		request = "creating Credit Note";
 		response = invokeUrl [
     		url : url
@@ -97,7 +97,7 @@ if(invoiceStatus == "paid")
 		refundDescription = "Subscription is cancelled and amount is auto-refunded";
 		paramsMap.put("amount",paidAmount);
 		paramsMap.put("description",refundDescription);
-		url = domain + "/api/v1/payments/" + paymentID + "/refunds?organization_id=" + organizationID;
+		url = domain + "/payments/" + paymentID + "/refunds?organization_id=" + organizationID;
 		request = "refunding payment";
 		response = invokeUrl [
     		url : url
@@ -111,7 +111,7 @@ if(invoiceStatus == "paid")
 else if(invoiceStatus == "sent" || invoiceID == "overdue")
 {
 	paramsMap.put("reason","subscription cancelled");
-	url = domain + "/api/v1/invoices/" + invoiceID + "/void?organization_id=" + organizationID;
+	url = domain + "/invoices/" + invoiceID + "/void?organization_id=" + organizationID;
 	request = "voiding invoice";
 	response = invokeUrl [
     		url : url

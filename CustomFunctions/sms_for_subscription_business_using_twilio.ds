@@ -43,20 +43,13 @@ if(length == 10)
 planName    = subscriptions.get("name");
 textmessage = "Subscription has been cancelled for the Plan - " + planName;
 
-// -- Paste the twilio Mobile number, Account SID and Auth Token from Twilio's console.
+// -- Paste the twilio Mobile number from Twilio's console.
 twilioMobileNo  = "";
-twilioAccSId    = "";
-twilioAuthtoken = "";
 
-baseEncoded = zoho.encryption.base64Encode(twilioAccSId + ":" + twilioAuthtoken);
-encode = baseEncoded.removeFirstOccurence("\n");
-
-headermap = Map();
-headermap.put("Authorization","Basic " + encode);
-
-infomap = Map();
-infomap.put("To", mobileNo);
-infomap.put("From", twilioMobileNo);
-infomap.put("Body", textmessage);
-
-respp = postUrl("https://api.twilio.com/2010-04-01/Accounts/" + twilioAccSId + "/Messages.json",infomap,headermap);
+sendsms
+[
+	from: twilioMobileNo
+	to: mobileNo
+	message: textmessage
+	connection: "YOUR_TWILIO_CONNECTION_NAME"
+];

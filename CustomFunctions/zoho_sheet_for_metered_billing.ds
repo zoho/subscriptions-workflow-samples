@@ -10,80 +10,56 @@
 	
 */
 
-if(invoiceStatus.equalsIgnoreCase("pending"))
+invoiceStatus = invoice.get("status");
+if(!invoiceStatus.equalsIgnoreCase("pending"))
 {
-
 	// -- Place the Zoho Sheet ID between the quotes obtained from the URL bar of the browser and also the worksheet name.
-	sheetID       = "";
+	sheetID = "";
 	worksheetName = "";
-
-	orgID 		 = organization.get("organization_id");
-	invID 		 = invoice.get("invoice_id");
-	custID 		 = invoice.get("customer_id");
+	domain = "https://www.zohoapis.com/billing/v1";
+	orgID = organization.get("organization_id");
+	invID = invoice.get("invoice_id");
+	custID = invoice.get("customer_id");
 	customerName = invoice.get("customer_name");
-
-	parameters = Map();
-	parameters.put("method", "worksheet.records.fetch");
-	parameters.put("worksheet_name", worksheetName);
-	parameters.put("criteria", "\"ID\"=\""+custID+"\"");
-	
-	response = invokeUrl [
-    	url : "https://sheet.zoho.com/api/v2/"+sheetID
-   		type : POST
-    	parameters : parameters
-    	connection : "SHEET_CONNECTION_NAME"
-	];
-
-	if(response.get("status") == "success")
+	criteria = Map();
+	criteria.put("criteria","\"Customer ID\"=\"" + custID + "\"");
+	response = zoho.sheet.getRecords(sheetID,worksheetName,criteria,"YOUR_SHEETS_CONNECTION_NAME");
+	if(response.get("status") == "success" && response.get("records_count") > 0)
 	{
-		record 				= response.get("records").get("0");
-		lastMonthReading    = record.get("Last Month Reading");
+		record = response.get("records").get("0");
+		lastMonthReading = record.get("Last Month Reading");
 		currentMonthReading = record.get("Closing Reading");
 		totalReading = currentMonthReading - lastMonthReading;
-		
 		/* In this example, invoice will be updated if the reading values exceed 100 units.
 		   Modify it for your needs.
 		*/
-		
 		if(totalReading > 100)
 		{
 			invoiceItems = invoice.get("invoice_items").toJSONList();
-			rate 		 = totalReading - 100;
-
+			rate = totalReading - 100;
 			invoiceItem = Map();
 			invoiceItem.put("quantity","1");
-			invoiceItem.put("price", rate);
+			invoiceItem.put("price",rate);
 			invoiceItem.put("description","Charges based on metered billing usage.");
 			invoiceItems.add(invoiceItem);
-
 			paramsMap = Map();
 			paramsMap.put("invoice_items",invoiceItems);
 			paramsMap.put("reason","Invoice line items updated based on usage.");
-
-			url 	= "https://subscriptions.zoho.com/api/v1/invoices/" + invID + "?organization_id=" + orgID;
+			url = domain + "/invoices/" + invID + "?organization_id=" + orgID;
 			request = "Updating Invoice";
-			
-			resp    = invokeUrl [
-    			url : url
-    			type : PUT
-    			parameters : paramsMap.tostring()
-   				connection : "ZSM_CONNECTION_NAME"
+			resp = invokeurl
+			[
+				url :url
+				type :PUT
+				parameters:paramsMap.tostring()
+				connection:"YOUR_BILLING_CONNECTION_NAME"
 			];
-			
 			if(resp.get("code") == 0)
 			{
-				parameters.put("method", "worksheet.records.update");
 				data = Map();
-				data.put("ID", custID);
+				criteria = "\"Customer ID\"=\""+custID+"\"";
 				data.put("Status", "Updated");
-				parameters.put("data", data);
-				
-				response = invokeUrl [
-    				url : "https://sheet.zoho.com/api/v2/"+sheetID
-   					type : POST
-    				parameters : parameters
-    				connection : "SHEET_CONNECTION_NAME"
-				];
+				response = zoho.sheet.updateRecords(sheetID, worksheetName, criteria, data, Map(), "YOUR_SHEETS_CONNECTION_NAME");
 			}
 			else
 			{
